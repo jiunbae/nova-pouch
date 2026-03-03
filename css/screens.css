@@ -1,0 +1,361 @@
+/* ============================================================
+   screens.css — Layer & Screen Styles (Step Flow Theme)
+   ============================================================ */
+
+/* ========== IDLE Layer ========== */
+#layer-idle .layer__inner {
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-xl) var(--space-md);
+}
+
+.idle__header {
+  margin-bottom: var(--space-xl);
+}
+
+.idle__logo {
+  display: block;
+  margin: 0 auto var(--space-md);
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(184, 134, 11, 0.15));
+  opacity: 0.9;
+}
+
+.idle__title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: var(--color-gold);
+  text-shadow: 0 1px 2px rgba(184, 134, 11, 0.2);
+  margin-bottom: var(--space-md);
+}
+
+.idle__subtitle {
+  font-size: 1.05rem;
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+}
+
+/* --- Language Toggle --- */
+.lang-toggle {
+  position: fixed;
+  top: var(--space-md);
+  right: var(--space-md);
+  z-index: var(--z-overlay, 100);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+
+.lang-toggle:hover,
+.lang-toggle:focus-visible {
+  opacity: 1;
+}
+
+/* --- Rules Card --- */
+.idle__rules {
+  max-width: 340px;
+  margin: var(--space-lg) auto;
+}
+
+.idle__rules-list {
+  counter-reset: rules;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  text-align: left;
+}
+
+.idle__rules-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.idle__rules-list li::before {
+  counter-increment: rules;
+  content: counter(rules);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-gold), var(--color-gold-light));
+  color: #FFF9F0;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+#btn-start {
+  font-size: 1.05rem;
+  padding: var(--space-md) var(--space-xl);
+}
+
+#btn-history-idle {
+  margin-top: var(--space-sm);
+}
+
+
+/* ========== GAME Layer ========== */
+#layer-game .layer__inner {
+  padding-top: 0;
+  gap: 0;
+  height: 100%;
+  min-height: calc(100vh - var(--space-lg) * 2);
+  min-height: calc(100dvh - var(--space-lg) * 2);
+}
+
+
+/* ========== REVIEW Step ========== */
+.review__tokens {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-sm);
+}
+
+.review__combo {
+  font-size: 1.3rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-xs);
+  word-break: keep-all;
+  line-height: 1.6;
+}
+
+.review__prompt {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  margin-bottom: var(--space-sm);
+}
+
+
+/* ========== WRITING Step ========== */
+.writing__form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+
+/* ========== COMPLETE Step ========== */
+.complete__title {
+  font-size: 1.6rem;
+  color: var(--color-gold);
+  text-shadow: 0 1px 2px rgba(184, 134, 11, 0.15);
+  margin-bottom: var(--space-lg);
+}
+
+.complete__card {
+  width: 100%;
+  background: #FFFCF5;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 12px var(--card-shadow);
+  padding: var(--space-lg);
+  text-align: left;
+  margin-bottom: var(--space-lg);
+}
+
+.complete__combo {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+.complete__story {
+  font-family: var(--font-narrative);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--color-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.complete__rating {
+  margin-bottom: var(--space-lg);
+}
+
+.complete__rating-label {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+
+/* ========== HISTORY Layer (overlay) ========== */
+#layer-history .layer__inner {
+  padding-top: var(--space-lg);
+  align-items: stretch;
+}
+
+.history__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.history__title {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.history__stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+}
+
+.history__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+  flex: 1;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.history__empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: var(--space-2xl) 0;
+}
+
+/* --- History Card --- */
+.history-card {
+  background: #FFFCF5;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 6px var(--card-shadow);
+  padding: var(--space-md);
+}
+
+.history-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+
+.history-card__number {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.history-card__date {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.history-card__combo {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-xs);
+  word-break: keep-all;
+}
+
+.history-card__world {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.history-card__rating {
+  font-size: 0.85rem;
+  color: var(--color-gold);
+}
+
+#btn-delete-all {
+  align-self: center;
+  margin-top: auto;
+}
+
+
+/* ========== English Locale Overrides ========== */
+[lang="en"] .review__combo,
+[lang="en"] .history-card__combo {
+  word-break: break-word;
+}
+
+[lang="en"] .narrative-font {
+  font-family: Georgia, 'Nanum Myeongjo', serif;
+}
+
+
+/* ========== Responsive: Mobile ========== */
+@media (max-width: 479px) {
+  .idle__title {
+    font-size: 1.8rem;
+    letter-spacing: 4px;
+  }
+
+  .idle__logo {
+    width: 110px;
+    height: 110px;
+  }
+
+  .idle__subtitle {
+    font-size: 0.95rem;
+  }
+}
+
+/* ========== Responsive: Desktop ========== */
+@media (min-width: 768px) {
+  #app {
+    padding: var(--space-2xl) var(--space-lg);
+  }
+
+  .idle__logo {
+    width: 180px;
+    height: 180px;
+  }
+
+  .idle__title {
+    font-size: 3rem;
+    letter-spacing: 8px;
+  }
+
+  .complete__card {
+    padding: var(--space-xl);
+  }
+
+  .history__list {
+    max-height: 70vh;
+  }
+}
+
+/* ========== Reduced Motion ========== */
+@media (prefers-reduced-motion: reduce) {
+  .layer,
+  .layer--overlay {
+    transition: none !important;
+  }
+}

@@ -1,0 +1,334 @@
+/* ============================================================
+   pouch.css — Pouch Styles & Animations (Board Game Theme)
+   ============================================================ */
+
+/* --- Pouch Row Layout --- */
+.pouch-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+/* --- Individual Pouch --- */
+.pouch {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 140px;
+  border-radius: 20px 20px 28px 28px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--transition-fast),
+              box-shadow var(--transition-normal);
+  animation: pouch-idle 3s ease-in-out infinite;
+  overflow: hidden;
+
+  /* Fabric / felt base */
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  box-shadow: 0 3px 10px var(--card-shadow),
+              inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* Stitching effect around pouch */
+.pouch::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 2px dashed rgba(139, 119, 90, 0.25);
+  border-radius: 16px 16px 24px 24px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Drawstring top */
+.pouch::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%;
+  height: 6px;
+  background: linear-gradient(to bottom, rgba(139, 119, 90, 0.4), transparent);
+  border-radius: 0 0 50% 50%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pouch:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+.pouch:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 6px 18px var(--card-shadow),
+              inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.pouch:active {
+  transform: scale(0.97);
+}
+
+/* --- Pouch Pattern (Accessibility: colorblind support) --- */
+.pouch__pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.08;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Red: dot pattern (fabric weave) */
+.pouch--red .pouch__pattern {
+  background-image: radial-gradient(circle, var(--color-red) 1.2px, transparent 1.2px);
+  background-size: 8px 8px;
+  opacity: 0.12;
+}
+
+/* Blue: stripe pattern (twill weave) */
+.pouch--blue .pouch__pattern {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-blue) 0,
+    var(--color-blue) 1.5px,
+    transparent 1.5px,
+    transparent 7px
+  );
+  opacity: 0.1;
+}
+
+/* Green: grid pattern (linen weave) */
+.pouch--green .pouch__pattern {
+  background-image:
+    linear-gradient(var(--color-green) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-green) 1px, transparent 1px);
+  background-size: 10px 10px;
+  opacity: 0.1;
+}
+
+/* --- Pouch Color Variants --- */
+.pouch--red {
+  background: linear-gradient(160deg, #FCEAE8, #F5D3CF);
+  border-color: rgba(192, 57, 43, 0.35);
+  box-shadow: 0 3px 10px rgba(192, 57, 43, 0.1),
+              inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+.pouch--red:hover {
+  box-shadow: 0 6px 18px rgba(192, 57, 43, 0.18),
+              inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+.pouch--red::before {
+  border-color: rgba(192, 57, 43, 0.2);
+}
+
+.pouch--blue {
+  background: linear-gradient(160deg, #E8F0F8, #CDE0F2);
+  border-color: rgba(36, 113, 163, 0.35);
+  box-shadow: 0 3px 10px rgba(36, 113, 163, 0.1),
+              inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+.pouch--blue:hover {
+  box-shadow: 0 6px 18px rgba(36, 113, 163, 0.18),
+              inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+.pouch--blue::before {
+  border-color: rgba(36, 113, 163, 0.2);
+}
+
+.pouch--green {
+  background: linear-gradient(160deg, #E8F5EE, #CEE8D9);
+  border-color: rgba(30, 132, 73, 0.35);
+  box-shadow: 0 3px 10px rgba(30, 132, 73, 0.1),
+              inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+.pouch--green:hover {
+  box-shadow: 0 6px 18px rgba(30, 132, 73, 0.18),
+              inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+.pouch--green::before {
+  border-color: rgba(30, 132, 73, 0.2);
+}
+
+/* --- Pouch Inner Elements --- */
+.pouch__emoji {
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: var(--space-sm);
+  position: relative;
+  z-index: 2;
+}
+
+.pouch__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  position: relative;
+  z-index: 2;
+}
+
+.pouch__desc {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Large Pouch (Drawing Screen) --- */
+.pouch--large {
+  width: 180px;
+  height: 200px;
+}
+
+.pouch--large .pouch__emoji {
+  font-size: 3rem;
+}
+
+.pouch--large .pouch__label {
+  font-size: 1rem;
+}
+
+/* --- Pouch Animations --- */
+@keyframes pouch-idle {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  25% {
+    transform: rotate(-1.5deg) translateY(-1px);
+  }
+  75% {
+    transform: rotate(1.5deg) translateY(-1px);
+  }
+}
+
+@keyframes pouch-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px) rotate(-2deg);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px) rotate(2deg);
+  }
+}
+
+@keyframes pouch-open {
+  0% {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+  }
+  100% {
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    box-shadow: 0 0 30px var(--pouch-glow, rgba(184, 134, 11, 0.3));
+  }
+}
+
+/* --- Animation State Classes --- */
+.pouch--shaking {
+  animation: pouch-shake 0.5s ease-in-out !important;
+  will-change: transform;
+}
+
+.pouch--opening {
+  animation: pouch-open 0.4s ease-out forwards !important;
+  will-change: border-radius, box-shadow;
+}
+
+.pouch--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  animation: none;
+}
+
+/* --- Pouch Glow Colors (used by --pouch-glow) --- */
+.pouch--red {
+  --pouch-glow: rgba(192, 57, 43, 0.35);
+}
+
+.pouch--blue {
+  --pouch-glow: rgba(36, 113, 163, 0.35);
+}
+
+.pouch--green {
+  --pouch-glow: rgba(30, 132, 73, 0.35);
+}
+
+/* --- Collected Token Chips (Drawing Screen) --- */
+.drawing__collected {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.collected-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  box-shadow: 0 1px 4px var(--card-shadow);
+  font-size: 0.82rem;
+  animation: chip-appear 0.4s ease-out;
+}
+
+.collected-chip--red {
+  border-color: rgba(192, 57, 43, 0.3);
+  background: linear-gradient(135deg, #FFF5F3, #FCEAE8);
+}
+
+.collected-chip--blue {
+  border-color: rgba(36, 113, 163, 0.3);
+  background: linear-gradient(135deg, #F3F8FC, #E8F0F8);
+}
+
+.collected-chip--green {
+  border-color: rgba(30, 132, 73, 0.3);
+  background: linear-gradient(135deg, #F3FCF5, #E8F5EE);
+}
+
+.collected-chip__emoji {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.collected-chip__label {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+@keyframes chip-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
