@@ -1,29 +1,45 @@
-import { getRandomToken } from './tokens.js';
-import { t, getLocale } from './i18n.js';
+import { getRandomToken } from './tokens';
+import { getDailyToken } from './daily';
+import { t, getLocale } from './i18n';
+import type { GameStateInstance, GameStateSnapshot, PouchColor, Token } from './types';
 
 const SHAKE_MS = 500;
 const RISE_MS = 800;
 const FLIP_MS = 320;
 let localAnimating = false;
 
-export function initPouch(gameState) {
+export function initPouch(gameState: GameStateInstance): void {
   const liveRegion = ensureLiveRegion();
 
-  // Bind the 3 board pouches
-  ['red', 'blue', 'green'].forEach(pouchType => {
+  // Bind the 3 board pouches and their main buttons
+  (['red', 'blue', 'green'] as PouchColor[]).forEach(pouchType => {
     const pouchEl = document.getElementById(`step-pouch-${pouchType}`);
     if (pouchEl) {
-      bindPouchInteraction(pouchEl, pouchType, gameState, liveRegion);
+      bindPouchInteraction(pouchEl as HTMLElement, pouchType, gameState, liveRegion);
+    }
+
+    const mainBtn = document.getElementById(`btn-action-${pouchType}`);
+    if (mainBtn) {
+      mainBtn.addEventListener('click', async (e) => {
+        const btn = e.currentTarget as HTMLElement;
+        if (btn.dataset.action === 'main-pouch-btn') {
+          const pEl = document.getElementById(`step-pouch-${pouchType}`);
+          if (canDraw(pouchType, gameState)) {
+            await runDrawSequence({ gameState, pouchEl: pEl, pouchType, liveRegion });
+          }
+        } else if (btn.dataset.action === 'confirm-pouch') {
+          dispatchAction(gameState, 'CONFIRM_TOKEN');
+        }
+      });
     }
   });
 
-  // Bind per-pouch confirm & redraw buttons
-  bindBoardConfirmButtons(gameState);
+  // Bind redraw buttons
   bindBoardRedrawButtons(gameState, liveRegion);
 }
 
-function bindPouchInteraction(pouchEl, pouchType, gameState, liveRegion) {
-  if (!pouchEl || pouchEl.dataset.boundPouch === 'true') {
+function bindPouchInteraction(pouchEl: HTMLElement, pouchType: PouchColor, gameState: GameStateInstance, liveRegion: HTMLElement): void {
+  if (!pouchEl || (pouchEl as HTMLElement & { dataset: DOMStringMap }).dataset.boundPouch === 'true') {
     return;
   }
 
@@ -35,7 +51,7 @@ function bindPouchInteraction(pouchEl, pouchType, gameState, liveRegion) {
 
   let isPressed = false;
 
-  pouchEl.addEventListener('pointerdown', (event) => {
+  pouchEl.addEventListener('pointerdown', (event: PointerEvent) => {
     if (!canDraw(pouchType, gameState)) {
       return;
     }
@@ -47,7 +63,7 @@ function bindPouchInteraction(pouchEl, pouchType, gameState, liveRegion) {
       try {
         pouchEl.setPointerCapture(event.pointerId);
       } catch {
-        // Ignore pointer capture failures.
+        // Ignore
       }
     }
   });
@@ -57,70 +73,37 @@ function bindPouchInteraction(pouchEl, pouchType, gameState, liveRegion) {
     pouchEl.classList.remove('is-pressed');
   });
 
-  pouchEl.addEventListener('pointerup', async (event) => {
+  pouchEl.addEventListener('pointerup', async (event: PointerEvent) => {
     pouchEl.classList.remove('is-pressed');
-
-    if (!isPressed) {
-      return;
-    }
-
+    if (!isPressed) return;
     isPressed = false;
 
-    if (!containsTarget(pouchEl, event.target)) {
-      return;
-    }
+    if (!containsTarget(pouchEl, event.target as Node | null)) return;
+    if (!canDraw(pouchType, gameState)) return;
 
-    if (!canDraw(pouchType, gameState)) {
-      return;
-    }
-
-    if (navigator.vibrate) {
-      navigator.vibrate(10);
-    }
-
+    if (navigator.vibrate) navigator.vibrate(10);
     await runDrawSequence({ gameState, pouchEl, pouchType, liveRegion });
   });
 
-  pouchEl.addEventListener('keydown', async (event) => {
-    if (event.key !== 'Enter' && event.key !== ' ') {
-      return;
-    }
-
+  pouchEl.addEventListener('keydown', async (event: KeyboardEvent) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
-
-    if (!canDraw(pouchType, gameState)) {
-      return;
-    }
-
+    if (!canDraw(pouchType, gameState)) return;
     await runDrawSequence({ gameState, pouchEl, pouchType, liveRegion });
   });
 }
 
-function bindBoardConfirmButtons(gameState) {
-  const buttons = document.querySelectorAll('[data-action="confirm-pouch"]');
-
-  buttons.forEach(button => {
-    if (button.dataset.boundPouchConfirm === 'true') return;
-    button.dataset.boundPouchConfirm = 'true';
-
-    button.addEventListener('click', (event) => {
-      event.preventDefault();
-      dispatchAction(gameState, 'CONFIRM_TOKEN');
-    });
-  });
-}
-
-function bindBoardRedrawButtons(gameState, liveRegion) {
-  const buttons = document.querySelectorAll('[data-action="redraw-pouch"]');
+function bindBoardRedrawButtons(gameState: GameStateInstance, liveRegion: HTMLElement): void {
+  const buttons = document.querySelectorAll<HTMLElement>('[data-action="redraw-pouch"]');
 
   buttons.forEach(button => {
     if (button.dataset.boundPouchRedraw === 'true') return;
     button.dataset.boundPouchRedraw = 'true';
 
-    button.addEventListener('click', async (event) => {
+    button.addEventListener('click', async (event: Event) => {
       event.preventDefault();
 
-      const pouchType = button.dataset.pouch;
+      const pouchType = button.dataset.pouch as PouchColor | undefined;
       if (!pouchType) return;
 
       const state = readState(gameState);
@@ -134,26 +117,31 @@ function bindBoardRedrawButtons(gameState, liveRegion) {
         return;
       }
 
-      button.disabled = true;
+      (button as HTMLButtonElement).disabled = true;
       button.setAttribute('aria-disabled', 'true');
 
-      const pouchEl = document.getElementById(`step-pouch-${pouchType}`);
+      const pEl = document.getElementById(`step-pouch-${pouchType}`);
       const excludeId = state?.drawnTokens?.[pouchType]?.id ?? state?.lastDrawn?.[pouchType]?.id ?? null;
 
-      await runDrawSequence({ gameState, pouchEl, pouchType, liveRegion, excludeId, isRedraw: true });
+      await runDrawSequence({ gameState, pouchEl: pEl as HTMLElement | null, pouchType, liveRegion, excludeId, isRedraw: true });
     });
   });
 }
 
-async function runDrawSequence({ gameState, pouchEl, pouchType, liveRegion, excludeId = null, isRedraw = false }) {
-  if (localAnimating) {
-    return;
-  }
+interface DrawSequenceOptions {
+  gameState: GameStateInstance;
+  pouchEl: HTMLElement | null;
+  pouchType: PouchColor;
+  liveRegion: HTMLElement;
+  excludeId?: string | null;
+  isRedraw?: boolean;
+}
+
+async function runDrawSequence({ gameState, pouchEl, pouchType, liveRegion, excludeId = null, isRedraw = false }: DrawSequenceOptions): Promise<void> {
+  if (localAnimating) return;
 
   const state = readState(gameState);
-  if (state?.isAnimating) {
-    return;
-  }
+  if (state?.isAnimating) return;
 
   localAnimating = true;
   setAnimating(gameState, true);
@@ -161,8 +149,10 @@ async function runDrawSequence({ gameState, pouchEl, pouchType, liveRegion, excl
   try {
     await animateClass(pouchEl, 'pouch--shaking', getDuration(SHAKE_MS));
 
-    const fallbackExclude = state?.lastDrawn?.[pouchType]?.id ?? null;
-    const token = getRandomToken(pouchType, excludeId ?? fallbackExclude);
+    const mode = state?.gameMode === 'free' ? 'free' : 'daily';
+    const token: Token | null = mode === 'free'
+      ? getRandomToken(pouchType, excludeId)
+      : getDailyToken(pouchType);
 
     const tokenSlot = document.getElementById(`step-token-${pouchType}`);
     await animateClass(tokenSlot, 'token-rise', getDuration(RISE_MS));
@@ -180,21 +170,12 @@ async function runDrawSequence({ gameState, pouchEl, pouchType, liveRegion, excl
   }
 }
 
-function canDraw(pouchType, gameState) {
-  if (localAnimating) {
-    return false;
-  }
-
+function canDraw(pouchType: PouchColor, gameState: GameStateInstance): boolean {
+  if (localAnimating) return false;
   const state = readState(gameState);
-  if (!state) {
-    return true;
-  }
+  if (!state) return true;
+  if (state.isAnimating) return false;
 
-  if (state.isAnimating) {
-    return false;
-  }
-
-  // Lock pouch after first draw (prevent infinite re-draws)
   if (state.drawnTokens[pouchType]) {
     const pouchEl = document.getElementById(`step-pouch-${pouchType}`);
     if (pouchEl && !pouchEl.classList.contains('pouch--disabled')) {
@@ -203,18 +184,15 @@ function canDraw(pouchType, gameState) {
     return false;
   }
 
-  // Only allow drawing from the current active pouch
   return state.currentPouch === pouchType;
 }
 
-function setAnimating(gameState, isAnimating) {
+function setAnimating(gameState: GameStateInstance, isAnimating: boolean): void {
   dispatchAction(gameState, 'SET_ANIMATING', isAnimating);
 }
 
-function revealToken(pouchType, token, liveRegion) {
-  if (!token) {
-    return;
-  }
+function revealToken(pouchType: PouchColor, token: Token | null, liveRegion: HTMLElement): void {
+  if (!token) return;
 
   const displayLabel = (getLocale() === 'en' && token.labelEn) ? token.labelEn : (token.label || '');
   const lore = t(`pouch.${pouchType}.lore`);
@@ -226,6 +204,8 @@ function revealToken(pouchType, token, liveRegion) {
     const emoji = document.createElement('span');
     emoji.className = 'token-emoji';
     emoji.textContent = token.emoji || '\u2726';
+    emoji.setAttribute('role', 'img');
+    emoji.setAttribute('aria-label', displayLabel);
     slot.appendChild(emoji);
 
     const label = document.createElement('span');
@@ -242,11 +222,11 @@ function revealToken(pouchType, token, liveRegion) {
   }
 }
 
-function containsTarget(parent, target) {
+function containsTarget(parent: Node, target: Node | null): boolean {
   return Boolean(parent && target && parent.contains(target));
 }
 
-function ensureLiveRegion() {
+function ensureLiveRegion(): HTMLElement {
   let liveRegion = document.getElementById('token-live-region');
 
   if (!liveRegion) {
@@ -261,7 +241,7 @@ function ensureLiveRegion() {
   return liveRegion;
 }
 
-function animateClass(element, className, durationMs) {
+function animateClass(element: HTMLElement | null, className: string, durationMs: number): Promise<void> {
   if (!element || durationMs <= 0) {
     return wait(durationMs);
   }
@@ -278,13 +258,13 @@ function animateClass(element, className, durationMs) {
   });
 }
 
-function wait(ms) {
+function wait(ms: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, Math.max(0, ms));
   });
 }
 
-function getDuration(ms) {
+function getDuration(ms: number): number {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     return 0;
   }
@@ -292,11 +272,8 @@ function getDuration(ms) {
   return ms;
 }
 
-function readState(gameState) {
-  if (!gameState) {
-    return null;
-  }
-
+function readState(gameState: GameStateInstance): GameStateSnapshot | null {
+  if (!gameState) return null;
   if (typeof gameState.getState === 'function') {
     try {
       return gameState.getState();
@@ -304,25 +281,14 @@ function readState(gameState) {
       return null;
     }
   }
-
-  return gameState;
+  return gameState as unknown as GameStateSnapshot;
 }
 
-function dispatchAction(gameState, action, payload) {
-  if (!gameState || typeof gameState.dispatch !== 'function') {
-    return;
-  }
-
+function dispatchAction(gameState: GameStateInstance, action: string, payload?: unknown): void {
+  if (!gameState || typeof gameState.dispatch !== 'function') return;
   try {
     gameState.dispatch(action, payload);
-    return;
   } catch {
-    // Try object-style dispatch fallback.
-  }
-
-  try {
-    gameState.dispatch({ type: action, payload });
-  } catch {
-    // Ignore unsupported dispatch signatures.
+    //
   }
 }

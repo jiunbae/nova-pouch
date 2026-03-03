@@ -1,8 +1,10 @@
+import type { HistoryData, HistorySession, HistoryStats, NormalizedToken, PouchColor } from './types';
+
 export const STORAGE_KEY = 'nova-pouch-history';
 export const MAX_SESSIONS = 100;
 const CURRENT_VERSION = 1;
 
-export function createEmptyHistory() {
+export function createEmptyHistory(): HistoryData {
   return {
     version: CURRENT_VERSION,
     sessions: [],
@@ -14,7 +16,7 @@ export function createEmptyHistory() {
   };
 }
 
-export function loadHistory() {
+export function loadHistory(): HistoryData {
   if (!canUseLocalStorage()) {
     return createEmptyHistory();
   }
@@ -24,7 +26,7 @@ export function loadHistory() {
     return createEmptyHistory();
   }
 
-  let parsed;
+  let parsed: unknown;
 
   try {
     parsed = JSON.parse(raw);
@@ -43,7 +45,7 @@ export function loadHistory() {
   return migrated;
 }
 
-export function saveSession(session) {
+export function saveSession(session: Record<string, unknown>): HistoryData {
   const history = loadHistory();
   const normalizedSession = normalizeSession(session);
 
@@ -69,7 +71,7 @@ export function saveSession(session) {
   return history;
 }
 
-export function deleteAllHistory() {
+export function deleteAllHistory(): HistoryData {
   if (canUseLocalStorage()) {
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -81,16 +83,22 @@ export function deleteAllHistory() {
   return createEmptyHistory();
 }
 
-export function getStats(history) {
-  const sessions = normalizeSessions(Array.isArray(history) ? history : history?.sessions);
+export function getStats(history: HistoryData | HistorySession[]): HistoryStats {
+  const sessions = normalizeSessions(
+    Array.isArray(history) ? history : (history as HistoryData)?.sessions
+  );
   const totalPlayed = sessions.length;
 
-  const ratedSessions = sessions.filter((session) => Number.isFinite(Number(session.rating)) && Number(session.rating) > 0);
+  const ratedSessions = sessions.filter(
+    (session) => Number.isFinite(Number(session.rating)) && Number(session.rating) > 0
+  );
   const averageRating = ratedSessions.length > 0
-    ? Number((ratedSessions.reduce((sum, session) => sum + Number(session.rating), 0) / ratedSessions.length).toFixed(1))
+    ? Number(
+        (ratedSessions.reduce((sum, session) => sum + Number(session.rating), 0) / ratedSessions.length).toFixed(1)
+      )
     : 0;
 
-  const favoriteTokens = {};
+  const favoriteTokens: Record<string, number> = {};
 
   sessions.forEach((session) => {
     const tokenEntries = Object.values(session.tokens || {});
@@ -111,18 +119,24 @@ export function getStats(history) {
   };
 }
 
-function migrateHistory(data) {
+interface RawHistoryRoot {
+  version: number;
+  sessions: unknown[];
+  stats: HistoryStats;
+}
+
+function migrateHistory(data: unknown): HistoryData {
   const parsed = normalizeHistoryRoot(data);
 
   if (parsed.version === CURRENT_VERSION) {
     return {
       ...parsed,
-      sessions: normalizeSessions(parsed.sessions).slice(0, MAX_SESSIONS),
-      stats: getStats(parsed)
+      sessions: normalizeSessions(parsed.sessions as unknown[]).slice(0, MAX_SESSIONS),
+      stats: getStats({ ...parsed, sessions: normalizeSessions(parsed.sessions as unknown[]) } as HistoryData)
     };
   }
 
-  let migrated = parsed;
+  let migrated: RawHistoryRoot = parsed;
 
   while (migrated.version < CURRENT_VERSION) {
     if (migrated.version === 0) {
@@ -145,19 +159,23 @@ function migrateHistory(data) {
   }
 
   migrated.version = CURRENT_VERSION;
-  migrated.sessions = normalizeSessions(migrated.sessions).slice(0, MAX_SESSIONS);
-  migrated.stats = getStats(migrated);
+  const finalSessions = normalizeSessions(migrated.sessions).slice(0, MAX_SESSIONS);
 
-  return migrated;
+  return {
+    version: CURRENT_VERSION,
+    sessions: finalSessions,
+    stats: getStats({ version: CURRENT_VERSION, sessions: finalSessions, stats: createEmptyHistory().stats })
+  };
 }
 
-function migrateV0ToV1(source) {
-  let sessions = [];
+function migrateV0ToV1(source: RawHistoryRoot): RawHistoryRoot {
+  let sessions: unknown[] = [];
+  const raw = source as unknown as Record<string, unknown>;
 
-  if (Array.isArray(source.sessions)) {
-    sessions = source.sessions;
-  } else if (Array.isArray(source.history)) {
-    sessions = source.history;
+  if (Array.isArray(raw.sessions)) {
+    sessions = raw.sessions as unknown[];
+  } else if (Array.isArray(raw.history)) {
+    sessions = raw.history as unknown[];
   } else if (Array.isArray(source)) {
     sessions = source;
   }
@@ -173,7 +191,7 @@ function migrateV0ToV1(source) {
   };
 }
 
-function normalizeHistoryRoot(data) {
+function normalizeHistoryRoot(data: unknown): RawHistoryRoot {
   if (!data || typeof data !== 'object') {
     return createEmptyHistory();
   }
@@ -190,17 +208,20 @@ function normalizeHistoryRoot(data) {
     };
   }
 
-  const version = Number.isFinite(Number(data.version)) ? Number(data.version) : 0;
+  const obj = data as Record<string, unknown>;
+  const version = Number.isFinite(Number(obj.version)) ? Number(obj.version) : 0;
+
+  const rawStats = obj.stats as Record<string, unknown> | undefined;
 
   return {
     version,
-    sessions: Array.isArray(data.sessions) ? data.sessions : [],
-    stats: data.stats && typeof data.stats === 'object'
+    sessions: Array.isArray(obj.sessions) ? obj.sessions : [],
+    stats: rawStats && typeof rawStats === 'object'
       ? {
-          totalPlayed: Number(data.stats.totalPlayed) || 0,
-          averageRating: Number(data.stats.averageRating) || 0,
-          favoriteTokens: data.stats.favoriteTokens && typeof data.stats.favoriteTokens === 'object'
-            ? data.stats.favoriteTokens
+          totalPlayed: Number(rawStats.totalPlayed) || 0,
+          averageRating: Number(rawStats.averageRating) || 0,
+          favoriteTokens: rawStats.favoriteTokens && typeof rawStats.favoriteTokens === 'object'
+            ? rawStats.favoriteTokens as Record<string, number>
             : {}
         }
       : {
@@ -211,64 +232,69 @@ function normalizeHistoryRoot(data) {
   };
 }
 
-function normalizeSessions(sessions) {
+function normalizeSessions(sessions: unknown): HistorySession[] {
   if (!Array.isArray(sessions)) {
     return [];
   }
 
   return sessions
     .map((session) => normalizeSession(session))
-    .filter(Boolean);
+    .filter((s): s is HistorySession => s !== null);
 }
 
-function normalizeSession(session) {
+function normalizeSession(session: unknown): HistorySession | null {
   if (!session || typeof session !== 'object') {
     return null;
   }
 
-  const createdAt = toIsoString(session.createdAt) || new Date().toISOString();
-  const completedAt = toIsoString(session.completedAt) || createdAt;
+  const s = session as Record<string, unknown>;
+  const tokens = s.tokens as Record<string, unknown> | undefined;
 
-  const red = normalizeToken(session.tokens?.red || session.red);
-  const blue = normalizeToken(session.tokens?.blue || session.blue);
-  const green = normalizeToken(session.tokens?.green || session.green);
+  const createdAt = toIsoString(s.createdAt) || new Date().toISOString();
+  const completedAt = toIsoString(s.completedAt) || createdAt;
 
-  const tokens = {
+  const red = normalizeToken(tokens?.red || (s as Record<string, unknown>).red);
+  const blue = normalizeToken(tokens?.blue || (s as Record<string, unknown>).blue);
+  const green = normalizeToken(tokens?.green || (s as Record<string, unknown>).green);
+
+  const sessionTokens: Record<PouchColor, NormalizedToken | null> = {
     red,
     blue,
     green
   };
 
   return {
-    id: String(session.id || `session-${Date.now()}`),
+    id: String(s.id || `session-${Date.now()}`),
     createdAt,
     completedAt,
-    tokens,
-    combinedDifficulty: Number(session.combinedDifficulty) || 0,
-    worldName: String(session.worldName || '').trim(),
-    userStory: String(session.userStory || '').trim(),
-    rating: clampRating(session.rating)
+    tokens: sessionTokens,
+    combinedDifficulty: Number(s.combinedDifficulty) || 0,
+    worldName: String(s.worldName || '').trim(),
+    userStory: String(s.userStory || '').trim(),
+    rating: clampRating(s.rating)
   };
 }
 
-function normalizeToken(token) {
+function normalizeToken(token: unknown): NormalizedToken | null {
   if (!token || typeof token !== 'object') {
     return null;
   }
 
+  const t = token as Record<string, unknown>;
+
   return {
-    id: token.id ? String(token.id) : '',
-    label: token.label ? String(token.label) : '',
-    emoji: token.emoji ? String(token.emoji) : ''
+    id: t.id ? String(t.id) : '',
+    label: t.label ? String(t.label) : '',
+    emoji: t.emoji ? String(t.emoji) : ''
   };
 }
 
-function toIsoString(value) {
+function toIsoString(value: unknown): string | null {
   if (!value) {
     return null;
   }
 
-  const date = new Date(value);
+  const date = new Date(value as string | number);
   if (Number.isNaN(date.getTime())) {
     return null;
   }
@@ -276,7 +302,7 @@ function toIsoString(value) {
   return date.toISOString();
 }
 
-function clampRating(value) {
+function clampRating(value: unknown): number {
   const n = Number(value);
   if (!Number.isFinite(n)) {
     return 0;
@@ -285,7 +311,7 @@ function clampRating(value) {
   return Math.max(0, Math.min(5, Math.round(n)));
 }
 
-function canUseLocalStorage() {
+function canUseLocalStorage(): boolean {
   try {
     if (typeof window === 'undefined' || !window.localStorage) {
       return false;

@@ -1,6 +1,16 @@
 /* ============================================================
-   state.js — Observer-pattern State Management (Singleton)
+   state.ts — Observer-pattern State Management (Singleton)
    ============================================================ */
+
+import type {
+  PouchColor,
+  GameStateSnapshot,
+  GameStateInstance,
+  StateListener,
+  DrawnTokens,
+  Token,
+  GameMode,
+} from './types';
 
 /**
  * Valid game phases.
@@ -12,7 +22,7 @@ export const PHASES = Object.freeze({
   WRITING: 'WRITING',
   COMPLETE: 'COMPLETE',
   HISTORY: 'HISTORY',
-});
+} as const);
 
 /**
  * Action types for dispatch.
@@ -35,32 +45,30 @@ export const ACTIONS = Object.freeze({
   BACK_HOME: 'BACK_HOME',
   SET_ANIMATING: 'SET_ANIMATING',
   GO_BACK: 'GO_BACK',
-});
-
-/**
- * Pouch draw order.
- */
-const POUCH_ORDER = ['red', 'blue', 'green'];
+  SET_DAILY_TOKENS: 'SET_DAILY_TOKENS',
+  SET_GAME_MODE: 'SET_GAME_MODE',
+  SUBMIT_RECORD: 'SUBMIT_RECORD',
+  VIEW_RECORD_DETAIL: 'VIEW_RECORD_DETAIL',
+} as const);
 
 /**
  * Map from currentPouch to next pouch (or null for REVIEW).
  */
-const NEXT_POUCH = {
+const NEXT_POUCH: Record<string, PouchColor | null> = {
   red: 'blue',
   blue: 'green',
   green: null,
 };
 
-const PREV_POUCH = {
+const PREV_POUCH: Record<string, PouchColor> = {
   blue: 'red',
   green: 'blue',
 };
 
 /**
  * Creates the initial blank state.
- * @returns {Object}
  */
-function createInitialState() {
+function createInitialState(): GameStateSnapshot {
   return {
     phase: PHASES.IDLE,
     currentPouch: null,
@@ -89,44 +97,43 @@ function createInitialState() {
     rating: 0,
     isAnimating: false,
     _prevPhase: null,
+    dailyTokens: { red: null, blue: null, green: null },
+    gameMode: 'daily',
+    recordId: null,
   };
 }
 
 /**
  * GameState — Singleton class with Observer pattern.
  */
-class GameState {
+class GameState implements GameStateInstance {
+  private _state: GameStateSnapshot;
+  private _listeners: Set<StateListener>;
+
   constructor() {
-    /** @private */
     this._state = createInitialState();
-    /** @private @type {Set<Function>} */
     this._listeners = new Set();
   }
 
   /**
    * Get a frozen snapshot of the current state.
-   * @returns {Object}
    */
-  getState() {
+  getState(): GameStateSnapshot {
     return { ...this._state };
   }
 
   /**
    * Subscribe a listener to state changes.
-   * @param {(state: Object, action: string, payload: any) => void} listener
-   * @returns {() => void} Unsubscribe function
    */
-  subscribe(listener) {
+  subscribe(listener: StateListener): () => void {
     this._listeners.add(listener);
-    return () => this._listeners.delete(listener);
+    return () => { this._listeners.delete(listener); };
   }
 
   /**
    * Dispatch an action to mutate state.
-   * @param {string} action - One of ACTIONS
-   * @param {*} [payload] - Optional payload
    */
-  dispatch(action, payload) {
+  dispatch(action: string, payload?: unknown): void {
     const prev = this._state;
 
     if (prev.isAnimating && action !== ACTIONS.SET_ANIMATING
@@ -140,9 +147,9 @@ class GameState {
   }
 
   /**
-   * @private Reducer — mutate _state based on action.
+   * Reducer — mutate _state based on action.
    */
-  _reduce(action, payload) {
+  private _reduce(action: string, payload: unknown): void {
     const s = this._state;
 
     switch (action) {
@@ -159,7 +166,7 @@ class GameState {
         break;
 
       case ACTIONS.DRAW_TOKEN: {
-        const { pouch, token } = payload;
+        const { pouch, token } = payload as { pouch: PouchColor; token: Token };
         s.drawnTokens[pouch] = token;
         break;
       }
@@ -172,7 +179,7 @@ class GameState {
           if (next) {
             s.currentPouch = next;
           } else {
-            // All 3 confirmed → move to REVIEW
+            // All 3 confirmed -> move to REVIEW
             s.currentPouch = null;
             s.phase = PHASES.REVIEW;
           }
@@ -181,7 +188,7 @@ class GameState {
       }
 
       case ACTIONS.REDRAW_TOKEN: {
-        const { pouch, token } = payload;
+        const { pouch, token } = payload as { pouch: PouchColor; token: Token };
         if (s.redraws[pouch] < 1) {
           s.lastDrawn[pouch] = s.drawnTokens[pouch];
           s.drawnTokens[pouch] = token;
@@ -191,7 +198,9 @@ class GameState {
       }
 
       case ACTIONS.START_WRITING:
-        s.phase = PHASES.WRITING;
+        if (s.phase === PHASES.REVIEW) {
+          s.phase = PHASES.WRITING;
+        }
         break;
 
       case ACTIONS.BACK_TO_REVIEW:
@@ -199,11 +208,11 @@ class GameState {
         break;
 
       case ACTIONS.UPDATE_WORLD_NAME:
-        s.worldName = payload || '';
+        s.worldName = (payload as string) || '';
         break;
 
       case ACTIONS.UPDATE_STORY:
-        s.userStory = payload || '';
+        s.userStory = (payload as string) || '';
         break;
 
       case ACTIONS.COMPLETE:
@@ -211,7 +220,7 @@ class GameState {
         break;
 
       case ACTIONS.SET_RATING:
-        s.rating = payload || 0;
+        s.rating = (payload as number) || 0;
         break;
 
       case ACTIONS.RESTART:
@@ -246,6 +255,18 @@ class GameState {
         s.isAnimating = !!payload;
         break;
 
+      case ACTIONS.SET_DAILY_TOKENS:
+        s.dailyTokens = (payload as DrawnTokens) || { red: null, blue: null, green: null };
+        break;
+
+      case ACTIONS.SET_GAME_MODE:
+        s.gameMode = (payload === 'free' ? 'free' : 'daily') as GameMode;
+        break;
+
+      case ACTIONS.SUBMIT_RECORD:
+        s.recordId = (payload as { recordId?: string })?.recordId || null;
+        break;
+
       case ACTIONS.GO_BACK: {
         if (s.phase === PHASES.HISTORY) {
           // Same as CLOSE_HISTORY
@@ -271,7 +292,7 @@ class GameState {
           break;
         }
         if (s.phase === PHASES.DRAWING) {
-          const prev = PREV_POUCH[s.currentPouch];
+          const prev = s.currentPouch ? PREV_POUCH[s.currentPouch] : undefined;
           if (prev) {
             // Go to previous pouch, clearing the previous pouch's data
             s.currentPouch = prev;
@@ -294,9 +315,9 @@ class GameState {
   }
 
   /**
-   * @private Notify all subscribed listeners.
+   * Notify all subscribed listeners.
    */
-  _notify(action, payload) {
+  private _notify(action: string, payload: unknown): void {
     const snapshot = this.getState();
     for (const listener of this._listeners) {
       try {
@@ -311,4 +332,4 @@ class GameState {
 /**
  * Singleton instance.
  */
-export const gameState = new GameState();
+export const gameState: GameStateInstance = new GameState();

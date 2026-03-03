@@ -1,3 +1,10 @@
+/**
+ * test-flow.mjs — Quick E2E flow test.
+ *
+ * Requires a server running on port 3456 serving the built dist/.
+ * Usage: npx vite build && npx serve dist -l 3456 & node test-flow.mjs
+ */
+
 import { chromium } from 'playwright';
 
 const browser = await chromium.launch({ headless: true });

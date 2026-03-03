@@ -6,277 +6,254 @@
 .step-progress {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  padding: var(--space-md) 0;
-  position: sticky;
-  top: 0;
-  z-index: var(--z-card);
+  gap: 12px;
+  padding: var(--space-20) var(--space-24);
+  background: transparent;
+  flex-shrink: 0;
+}
+
+/* --- Step Container --- */
+.step-container {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  min-height: 0;
 }
 
 .step-progress__dot {
   width: 8px;
   height: 8px;
   border-radius: var(--radius-full);
-  background: var(--card-border);
-  transition: background var(--transition-normal),
-              transform var(--transition-normal);
+  background: rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-normal);
 }
 
 .step-progress__dot--active {
-  background: var(--color-gold);
-  transform: scale(1.3);
+  background: var(--color-primary);
+  width: 24px;
 }
 
 .step-progress__dot--done {
-  background: var(--color-gold-light);
+  background: var(--color-primary-soft);
 }
 
-/* --- Step Container --- */
-.step-container {
-  position: relative;
-  width: 100%;
-  flex: 1;
-  overflow: hidden;
+/* --- Persistent Collected Stack --- */
+.collected-stack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-8);
+  padding: var(--space-20);
+  pointer-events: none;
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+.collected-stack .collected-chip {
+  pointer-events: auto;
+  box-shadow: 0 4px 12px rgba(101, 78, 50, 0.12);
+  max-width: fit-content;
+  border-radius: var(--radius-12);
+  background: var(--color-surface);
+  border: 1px solid rgba(139, 119, 90, 0.2);
 }
 
 /* --- Individual Step --- */
 .step {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 300ms ease, transform 300ms ease;
+  transition: opacity var(--transition-normal);
   pointer-events: none;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
-.step--active {
+.step.step--active {
   opacity: 1;
-  transform: translateY(0);
   pointer-events: auto;
-  position: relative;
   z-index: 1;
-  animation: step-enter 350ms var(--ease-toss-out, cubic-bezier(0.16, 1, 0.3, 1)) forwards;
 }
 
-/* --- Toss-style step enter --- */
-@keyframes step-enter {
-  0%   { opacity: 0; transform: translateY(24px) scale(0.97); }
-  60%  { opacity: 1; transform: translateY(-3px) scale(1.005); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* Active pouch glow pulse */
-@keyframes pouch-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 var(--pouch-glow, rgba(184, 134, 11, 0.2)); }
-  50%      { box-shadow: 0 0 0 8px var(--pouch-glow, rgba(184, 134, 11, 0)); }
-}
-
-.step--active .pouch--step { animation: pouch-pulse 2s ease-in-out infinite; }
-
-.step--exit-forward {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-.step--exit-backward {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-/* --- Step Content (centered main area) --- */
+/* --- Step Content --- */
 .step__content {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: var(--space-lg) var(--space-md);
+  justify-content: center; /* Centered content */
+  padding: var(--space-32) var(--space-24);
+  gap: var(--space-48);
   text-align: center;
-  gap: var(--space-md);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* --- Step Instruction Text --- */
-.step__instruction {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--color-text);
-  line-height: 1.6;
-  word-break: keep-all;
-}
-
-.step__sub-instruction {
-  font-size: 0.95rem;
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-}
-
-/* --- Step Actions (bottom CTA) --- */
-.step__actions {
+.pouch-wrapper {
+  position: relative;
+  perspective: 1000px;
+  min-height: 240px;
   display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  padding-bottom: calc(var(--safe-bottom) + var(--space-md));
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  flex-shrink: 0;
 }
 
-/* --- Full-width CTA Button --- */
-.btn--full {
-  width: 100%;
-  min-height: 52px;
-  font-size: 1.05rem;
-}
-
-/* --- Large Step Pouch --- */
 .pouch--step {
-  width: 160px;
-  height: 140px;
-}
-
-.pouch--step .pouch__emoji {
-  font-size: 2.8rem;
-}
-
-.pouch--step .pouch__label {
-  font-size: 1rem;
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+  z-index: 1;
 }
 
 /* --- Token Reveal Area --- */
 .step__token-reveal {
-  min-height: 80px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-xs);
-  width: 100%;
-  max-width: 280px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
 }
 
-.step__token-reveal:empty {
-  display: none;
+.step__token-reveal.is-revealed {
+  opacity: 1;
 }
 
 .step__token-reveal .token-emoji {
-  font-size: 2.4rem;
-  animation: token-rise 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  font-size: 4rem;
+  margin-bottom: var(--space-12);
+}
+
+.step__token-reveal.is-revealed .token-emoji {
+  animation: token-rise 0.8s var(--ease-toss) forwards;
 }
 
 .step__token-reveal .token-label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-text);
-  word-break: keep-all;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--color-text-primary);
   text-align: center;
+  word-break: keep-all;
+  padding: 0 var(--space-20);
 }
 
-/* --- Collected Token Chips (from previous steps) — vertical stack --- */
-.step__collected {
+.step__text-group {
   display: flex;
   flex-direction: column;
+  gap: var(--space-12);
+  flex-shrink: 0;
+}
+
+.step__instruction {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.step__sub-instruction {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* --- Step Actions --- */
+.step__actions {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-24) 0;
+  padding-bottom: calc(var(--safe-bottom) + var(--space-32));
+  width: 100%;
+  flex-shrink: 0;
+  background: var(--color-bg);
+  z-index: 10;
+  border-top: 1px solid rgba(139, 119, 90, 0.08);
+}
+
+.step__actions-row,
+.step__actions.btn-group {
+  display: flex;
+  gap: var(--space-12);
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
   align-items: center;
-  width: 100%;
-  max-width: 320px;
-  gap: var(--space-sm);
-  min-height: 0;
+  padding: 0;
 }
 
-.step__collected:empty {
-  display: none;
-}
-
-/* --- Token Card (step review layout — vertical cards) --- */
-.token-card--step {
-  width: 100%;
-  max-width: 320px;
-  flex-direction: row;
-  gap: var(--space-md);
-  padding: var(--space-md) var(--space-lg);
-  min-height: auto;
-}
-
-.token-card--step .token-card__emoji {
-  font-size: 2rem;
-  margin-bottom: 0;
-}
-
-.token-card--step .token-card__label {
-  font-size: 1rem;
-  text-align: left;
+.step__actions-row .btn--full {
   flex: 1;
 }
 
-/* --- Review Step --- */
-.step--review .step__content {
-  justify-content: flex-start;
-  padding-top: var(--space-xl);
-}
-
-.step--review .review__tokens {
-  flex-direction: column;
+/* Redraw Icon Button */
+.btn--redraw {
+  display: flex;
   align-items: center;
-  gap: var(--space-md);
-  width: 100%;
-  max-width: 340px;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: var(--radius-16);
+  background: var(--color-surface);
+  border: 1.5px solid rgba(139, 119, 90, 0.2);
+  color: var(--color-text-secondary);
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(101, 78, 50, 0.08);
 }
 
-.step--review .review__plus {
-  display: none;
+.btn--redraw:active {
+  transform: scale(0.9);
+  background: var(--color-surface-secondary);
 }
 
-/* --- Writing Step --- */
-.step--writing .step__content {
-  justify-content: flex-start;
-  padding-top: var(--space-lg);
-  text-align: left;
-  align-items: stretch;
+.btn--redraw:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.step--writing .writing__form {
-  width: 100%;
-}
-
-/* --- Complete Step --- */
-.step--complete .step__content {
-  justify-content: flex-start;
-  padding-top: var(--space-xl);
-}
-
-/* --- Hidden state for step actions (before token is drawn) --- */
-.step__actions[hidden] {
-  display: none;
+.btn--redraw__icon {
+  line-height: 1;
+  display: block;
 }
 
 /* ========== Post-Draw Flow (continuous scroll) ========== */
 .post-draw-flow {
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-lg) var(--space-md) var(--space-3xl);
   overflow-y: auto;
-  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 var(--space-20) var(--space-64);
+  gap: var(--space-16);
 }
 
 .flow-section {
-  position: relative;
   width: 100%;
   max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: var(--space-sm);
-  transition: opacity 500ms var(--ease-toss-out, cubic-bezier(0.16, 1, 0.3, 1)),
-              transform 500ms var(--ease-toss-out, cubic-bezier(0.16, 1, 0.3, 1)),
-              max-height 500ms var(--ease-toss-out, cubic-bezier(0.16, 1, 0.3, 1));
+  transition: all var(--transition-normal) var(--ease-toss);
+  flex-shrink: 0;
+  padding: var(--space-12) 0;
+  /* Ensure padding-bottom inside flow-section helps with button spacing */
+  padding-bottom: var(--space-32);
 }
 
 .flow-section--collapsed {
@@ -285,83 +262,151 @@
   overflow: hidden;
   transform: translateY(20px);
   pointer-events: none;
+  padding: 0;
 }
 
 .flow-section--revealed {
-  max-height: 2000px;
+  max-height: 5000px;
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
 
-/* flow-section writing needs left-align for form */
-.flow-section .writing__form {
-  text-align: left;
+/* Review Section Tokens (Vertical stack of rows) */
+.review__tokens {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
   width: 100%;
+  margin-bottom: var(--space-24);
 }
 
-/* --- Responsive: ensure step fills viewport --- */
-@media (max-width: 479px) {
-  .step__instruction {
-    font-size: 1.2rem;
-  }
-
-  .pouch--step {
-    width: 140px;
-    height: 130px;
-  }
-
-  .pouch--step .pouch__emoji {
-    font-size: 2.4rem;
-  }
-
-  .token-card--step {
-    max-width: 100%;
-  }
+.review__tokens .token-card {
+  width: 100%;
+  flex-direction: row;
+  justify-content: flex-start;
+  min-height: auto;
+  padding: var(--space-12) var(--space-20);
+  gap: var(--space-16);
+  border-radius: var(--radius-16);
 }
 
-@media (min-width: 768px) {
-  .pouch--step {
-    width: 180px;
-    height: 160px;
-  }
-
-  .pouch--step .pouch__emoji {
-    font-size: 3.2rem;
-  }
-
-  .step__instruction {
-    font-size: 1.6rem;
-  }
+.review__tokens .token-card::before {
+  width: 6px;
+  height: 100%;
+  left: 0;
+  top: 0;
 }
 
-/* --- Step Collapse Animation --- */
-@keyframes step-collapse {
-  0%   { opacity: 1; transform: scale(1); max-height: 800px; }
-  100% { opacity: 0; transform: scale(0.96) translateY(-10px); max-height: 0; }
+.review__tokens .token-card__emoji {
+  font-size: 2rem;
+  margin-bottom: 0;
 }
 
-.step--collapsing {
-  animation: step-collapse 350ms var(--ease-toss-out, cubic-bezier(0.16, 1, 0.3, 1)) forwards;
+.review__tokens .token-card__label {
+  font-size: 1.1rem;
+  text-align: left;
+}
+
+.review__combo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  margin-bottom: var(--space-12);
+}
+
+.review__prompt {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Writing Area (flattened) */
+.writing__form {
+  width: 100%;
+  transition: all var(--transition-normal) var(--ease-toss);
+  opacity: 0;
+  transform: translateY(12px);
+  max-height: 0;
   overflow: hidden;
+  margin-top: 0;
 }
 
-/* --- Reduced Motion --- */
-@media (prefers-reduced-motion: reduce) {
-  .step {
-    transition: none !important;
-    animation: none !important;
-  }
+.writing__form:not([hidden]) {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 1000px;
+  margin-top: var(--space-12);
+}
 
-  .step__token-reveal .token-emoji {
-    animation: none !important;
-  }
+.form-textarea {
+  min-height: 160px;
+  background: var(--color-surface);
+  border: 1.5px solid rgba(139, 119, 90, 0.2);
+  padding: var(--space-16);
+  border-radius: var(--radius-16);
+  box-shadow: inset 0 2px 4px rgba(101, 78, 50, 0.04);
+}
 
-  .step--active .pouch--step {
-    animation: none !important;
-  }
+/* When writing is active, compress elements above to save screen space */
+.flow-section.review--writing-active .review__tokens {
+  gap: var(--space-4);
+  margin-bottom: var(--space-12);
+}
 
-  .flow-section {
-    transition: none !important;
-  }
+.flow-section.review--writing-active .review__tokens .token-card {
+  padding: var(--space-8) var(--space-16);
+}
+
+.flow-section.review--writing-active .review__tokens .token-card__emoji {
+  font-size: 1.4rem;
+}
+
+.flow-section.review--writing-active .review__tokens .token-card__label {
+  font-size: 0.95rem;
+}
+
+.flow-section.review--writing-active .review__combo {
+  font-size: 1.2rem;
+  margin-bottom: var(--space-8);
+}
+
+.flow-section.review--writing-active .review__prompt {
+  display: none;
+}
+
+/* Complete Section Card */
+.complete__card {
+  background: var(--color-surface);
+  border-radius: var(--radius-24);
+  padding: var(--space-32);
+  text-align: left;
+  box-shadow: var(--card-shadow-elevated);
+  margin-bottom: var(--space-24);
+}
+
+.complete__combo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: var(--space-16);
+}
+
+.complete__story {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Specific styling for actions in the continuous flow (Review/Complete) */
+.flow-section .step__actions {
+  margin-top: var(--space-48);
+  position: relative; /* Sit naturally at the bottom */
+  border-top: none;
+  background: transparent;
 }

@@ -1,19 +1,22 @@
 /* ============================================================
-   i18n.js — Lightweight i18n (ko / en)
+   i18n.ts — Lightweight i18n (ko / en)
    No library, no build step. data-i18n attribute system.
    ============================================================ */
 
+import type { Locale } from './types';
+
 const STORAGE_KEY = 'nova-pouch-locale';
-const DEFAULT_LOCALE = 'ko';
+const DEFAULT_LOCALE: Locale = 'ko';
 
 /* ----------------------------------------------------------
    String Table
    ---------------------------------------------------------- */
 
-const STRINGS = {
+const STRINGS: Record<Locale, Record<string, string>> = {
   ko: {
     // Idle
     'idle.subtitle':        '막을 건너온 사소한 물건들,\n그 너머에 존재하는 것은\n거대한 세계와 사람들.\n할 수 있는 것은 오직 상상하는 일뿐.',
+    'idle.subtitle.source': '— 김초엽, <양면의 조개껍데기> 중 <비구름을 따라서>',
     'idle.start':           '시작하기',
     'idle.history':         '기록 보관소',
     'idle.rule1':           '세 개의 주머니에서 파편을 하나씩 뽑으세요',
@@ -39,13 +42,13 @@ const STRINGS = {
     'draw.blue.instruction':   '파란 주머니를 열어보세요',
     'draw.green.instruction':  '초록 주머니를 열어보세요',
     'draw.sub':                '주머니를 탭하면 파편이 나타납니다',
-    'draw.confirm':            '확인',
+    'draw.confirm':            '다음',
     'draw.redraw':             '다시 뽑기',
     'draw.redraw.used':        '사용 완료',
 
     // Review
     'review.prompt':        '이 물건이 일상적으로 쓰이는\n세계는 어떤 모습일까요?',
-    'review.write':         '이 세계를 기록하기',
+    'review.write':         '이 세계를 상상하기',
     'review.retry':         '다시 탐험하기',
 
     // Writing
@@ -89,6 +92,12 @@ const STRINGS = {
     'share.record':         '기록: {story}',
     'share.noCombo':        '조합 없음',
     'share.shareTitle':     'Nova Pouch 기록',
+    'share.download':       '이미지 저장',
+    'share.twitter':        'Twitter 공유',
+    'share.native':         '공유하기',
+    'share.copyResult':     '결과 복사',
+    'share.copyLink':       '링크 복사',
+    'share.clipboard':      '클립보드에 복사되었습니다!',
 
     // Aria labels
     'aria.pouch.red':       '빨간 주머니',
@@ -104,7 +113,7 @@ const STRINGS = {
     'aria.historyOpen':     '기록 보관소 열기',
     'aria.confirm':         '확인',
     'aria.redraw':          '다시 뽑기',
-    'aria.write':           '이 세계를 기록하기',
+    'aria.write':           '이 세계를 상상하기',
     'aria.retry':           '다시 탐험하기',
     'aria.complete':        '기록 완료',
     'aria.restart':         '다시 탐험하기',
@@ -119,6 +128,46 @@ const STRINGS = {
     'aria.storyInput':      '세계 기록 입력',
     'aria.token.fragment':  '{lore} 파편: {label}',
 
+    // Daily
+    'daily.banner':         '오늘의 조합',
+    'daily.banner.number':  '#${n}',
+    'daily.puzzleLabel':    'Day #{n}',
+    'daily.alreadyComplete':'오늘의 기록을 완료했습니다',
+    'daily.viewRecord':     '기록 보기',
+    'daily.freePlay':       '자유 모드',
+
+    // Countdown
+    'countdown.label':      '새로운 물건이 도착하기까지',
+    'countdown.nextPuzzle': '새로운 물건이 준비됩니다',
+
+    // Feed
+    'feed.button':          '다른 세계의 기록',
+    'feed.title':           '다른 세계의 기록',
+    'feed.back':            '← 돌아가기',
+    'feed.loadMore':        '더 보기',
+    'feed.empty':           '아직 기록이 없습니다. 첫 번째 기록을 남겨보세요!',
+    'feed.error':           '기록을 불러올 수 없습니다',
+    'feed.retry':           '다시 시도',
+    'feed.offline':         '오프라인 상태입니다',
+    'feed.like':            '좋아요',
+    'feed.anonymous':       '익명의 기록자',
+    'feed.seeOthers':       '다른 사람들은 어떻게 상상했을까?',
+    'feed.todayCount':      '오늘',
+    'feed.todayCountSuffix':'개의 세계가 기록되었습니다',
+
+    // Share panel
+    'share.download':       '이미지 저장',
+    'share.twitter':        'Twitter',
+    'share.native':         '공유',
+    'share.clipboard':      '복사됨!',
+    'share.generating':     '이미지 생성 중...',
+    'share.copyResult':     '결과 복사',
+    'share.moreOptions':    '더 많은 공유 옵션',
+
+    // Complete additions
+    'complete.submitted':   '커뮤니티에 공유되었습니다',
+    'complete.submitFailed':'공유에 실패했습니다 (로컬에 저장됨)',
+
     // Lang toggle
     'lang.toggle':          'EN',
   },
@@ -126,6 +175,7 @@ const STRINGS = {
   en: {
     // Idle
     'idle.subtitle':        'Trivial objects that crossed the veil,\nbeyond them lie vast worlds and people.\nAll you can do is imagine.',
+    'idle.subtitle.source': '— Kim Choyeop, <Following the Rain Clouds>',
     'idle.start':           'Start',
     'idle.history':         'Archive',
     'idle.rule1':           'Draw one fragment from each of three pouches',
@@ -157,7 +207,7 @@ const STRINGS = {
 
     // Review
     'review.prompt':        'What would a world look like\nwhere this item is used daily?',
-    'review.write':         'Record this world',
+    'review.write':         'Imagine this world',
     'review.retry':         'Explore again',
 
     // Writing
@@ -199,8 +249,15 @@ const STRINGS = {
     'share.world':          'World: {name}',
     'share.fragment':       'Fragments: {combo}',
     'share.record':         'Record: {story}',
-    'share.noCombo':        'No combination',
+    'share.noCombo':        'No combo',
     'share.shareTitle':     'Nova Pouch Record',
+    'share.download':       'Save Image',
+    'share.twitter':        'Share on Twitter',
+    'share.native':         'Share',
+    'share.copyResult':     'Copy Text',
+    'share.copyLink':       'Copy Link',
+    'share.clipboard':      'Copied to clipboard!',
+
 
     // Aria labels
     'aria.pouch.red':       'Red Pouch',
@@ -216,7 +273,7 @@ const STRINGS = {
     'aria.historyOpen':     'Open archive',
     'aria.confirm':         'Confirm',
     'aria.redraw':          'Redraw',
-    'aria.write':           'Record this world',
+    'aria.write':           'Imagine this world',
     'aria.retry':           'Explore again',
     'aria.complete':        'Complete record',
     'aria.restart':         'Explore again',
@@ -231,6 +288,46 @@ const STRINGS = {
     'aria.storyInput':      'Enter world record',
     'aria.token.fragment':  '{lore} fragment: {label}',
 
+    // Daily
+    'daily.banner':         "Today's Combination",
+    'daily.banner.number':  '#${n}',
+    'daily.puzzleLabel':    'Day #{n}',
+    'daily.alreadyComplete':"Today's record is complete",
+    'daily.viewRecord':     'View Record',
+    'daily.freePlay':       'Free Play',
+
+    // Countdown
+    'countdown.label':      'Until the next objects arrive',
+    'countdown.nextPuzzle': 'The next objects will be ready',
+
+    // Feed
+    'feed.button':          'Records from Other Worlds',
+    'feed.title':           'Records from Other Worlds',
+    'feed.back':            '← Back',
+    'feed.loadMore':        'Load More',
+    'feed.empty':           'No records yet. Be the first!',
+    'feed.error':           'Unable to load records',
+    'feed.retry':           'Retry',
+    'feed.offline':         "You're offline",
+    'feed.like':            'Like',
+    'feed.anonymous':       'Anonymous Archivist',
+    'feed.seeOthers':       'How did others imagine this world?',
+    'feed.todayCount':      'Today,',
+    'feed.todayCountSuffix':'worlds have been recorded',
+
+    // Share panel
+    'share.download':       'Save Image',
+    'share.twitter':        'Twitter',
+    'share.native':         'Share',
+    'share.clipboard':      'Copied!',
+    'share.generating':     'Generating image...',
+    'share.copyResult':     'Copy Result',
+    'share.moreOptions':    'More sharing options',
+
+    // Complete additions
+    'complete.submitted':   'Shared with the community',
+    'complete.submitFailed':'Share failed (saved locally)',
+
     // Lang toggle
     'lang.toggle':          '한국어',
   },
@@ -240,7 +337,7 @@ const STRINGS = {
    State
    ---------------------------------------------------------- */
 
-let _locale = DEFAULT_LOCALE;
+let _locale: Locale = DEFAULT_LOCALE;
 
 /* ----------------------------------------------------------
    Public API
@@ -249,7 +346,7 @@ let _locale = DEFAULT_LOCALE;
 /**
  * Initialise locale from localStorage. Call once on startup.
  */
-export function initI18n() {
+export function initI18n(): void {
   const stored = localStorage.getItem(STORAGE_KEY);
   _locale = (stored === 'en' || stored === 'ko') ? stored : DEFAULT_LOCALE;
   document.documentElement.setAttribute('lang', _locale);
@@ -257,17 +354,15 @@ export function initI18n() {
 
 /**
  * Get the current locale.
- * @returns {'ko'|'en'}
  */
-export function getLocale() {
+export function getLocale(): Locale {
   return _locale;
 }
 
 /**
  * Set locale, persist, and update <html lang>.
- * @param {'ko'|'en'} locale
  */
-export function setLocale(locale) {
+export function setLocale(locale: Locale): void {
   _locale = (locale === 'en' || locale === 'ko') ? locale : DEFAULT_LOCALE;
   localStorage.setItem(STORAGE_KEY, _locale);
   document.documentElement.setAttribute('lang', _locale);
@@ -275,12 +370,9 @@ export function setLocale(locale) {
 
 /**
  * Translate a key with optional {placeholder} interpolation.
- * Falls back: current locale → ko → raw key.
- * @param {string} key
- * @param {Record<string, string|number>} [vars]
- * @returns {string}
+ * Falls back: current locale -> ko -> raw key.
  */
-export function t(key, vars) {
+export function t(key: string, vars?: Record<string, string | number>): string {
   let str = STRINGS[_locale]?.[key] ?? STRINGS.ko?.[key] ?? key;
   if (vars) {
     for (const [k, v] of Object.entries(vars)) {
@@ -293,25 +385,33 @@ export function t(key, vars) {
 /**
  * Walk the DOM and update elements bearing data-i18n attributes.
  */
-export function updateDOM() {
-  // data-i18n → textContent (supports <br> via innerHTML when \n present)
+export function updateDOM(): void {
+  // data-i18n -> textContent (supports <br> via innerHTML when \n present)
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
+    if (!key) return;
     const text = t(key);
     if (text.includes('\n')) {
-      el.innerHTML = text.replace(/\n/g, '<br>');
+      const htmlEl = el as HTMLElement;
+      htmlEl.textContent = '';
+      text.split('\n').forEach((part, i) => {
+        if (i > 0) htmlEl.appendChild(document.createElement('br'));
+        htmlEl.appendChild(document.createTextNode(part));
+      });
     } else {
       el.textContent = text;
     }
   });
 
-  // data-i18n-placeholder → placeholder attribute
+  // data-i18n-placeholder -> placeholder attribute
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder')));
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (key) el.setAttribute('placeholder', t(key));
   });
 
-  // data-i18n-aria → aria-label attribute
+  // data-i18n-aria -> aria-label attribute
   document.querySelectorAll('[data-i18n-aria]').forEach(el => {
-    el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
+    const key = el.getAttribute('data-i18n-aria');
+    if (key) el.setAttribute('aria-label', t(key));
   });
 }

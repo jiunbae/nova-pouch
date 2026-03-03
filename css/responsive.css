@@ -1,35 +1,27 @@
 :root {
-  --touch-target: 44px;
+  --touch-target: 48px;
 }
 
 body {
-  padding-top: max(16px, env(safe-area-inset-top));
-  padding-right: max(16px, env(safe-area-inset-right));
-  padding-bottom: max(16px, env(safe-area-inset-bottom));
-  padding-left: max(16px, env(safe-area-inset-left));
+  overflow-x: hidden;
 }
 
 button,
 [role="button"],
 [data-pouch],
-.pouch,
-.action-button {
+.pouch {
   min-width: var(--touch-target);
   min-height: var(--touch-target);
 }
 
 button:focus-visible,
 [role="button"]:focus-visible,
-[data-pouch]:focus-visible,
 input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 3px solid var(--color-gold, #B8860B);
+textarea:focus-visible {
+  outline: 3px solid var(--color-primary);
   outline-offset: 3px;
-  box-shadow: 0 0 0 2px rgba(255, 252, 245, 0.8);
 }
 
-#token-live-region,
 .sr-only {
   position: absolute;
   width: 1px;
@@ -43,49 +35,6 @@ select:focus-visible {
   white-space: nowrap;
 }
 
-[data-pouch],
-.pouch {
-  position: relative;
-  overflow: hidden;
-}
-
-/* Colorblind-safe shape markers */
-[data-pouch="red"]::after,
-.pouch-red::after {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 14px;
-  line-height: 1;
-  content: "\25CF";
-  color: var(--color-red);
-  opacity: 0.4;
-}
-
-[data-pouch="blue"]::after,
-.pouch-blue::after {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 14px;
-  line-height: 1;
-  content: "\25C6";
-  color: var(--color-blue);
-  opacity: 0.4;
-}
-
-[data-pouch="green"]::after,
-.pouch-green::after {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 14px;
-  line-height: 1;
-  content: "\25A6";
-  color: var(--color-green);
-  opacity: 0.4;
-}
-
 textarea,
 input,
 button,
@@ -93,97 +42,41 @@ button,
   touch-action: manipulation;
 }
 
+/* --- Mobile Specifics --- */
 @media (max-width: 479px) {
-  .pouch-container,
-  .pouch-grid,
-  .pouches,
-  [data-role="pouch-container"],
-  #layer-idle .pouch-list,
-  #layer-idle .pouch-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  .idle__title {
+    font-size: 2.2rem;
+  }
+  
+  .step__instruction {
+    font-size: 1.5rem;
+  }
+
+  .pouch {
+    width: 120px;
+    height: 140px;
+  }
+
+  .token-card {
     width: 100%;
+    min-height: auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: var(--space-16) var(--space-20);
+    gap: var(--space-16);
   }
 
-  .pouch,
-  [data-pouch],
-  .pouch-card,
-  .token-card,
-  .review-card,
-  .action-row > * {
-    width: 100%;
+  .token-card__emoji {
+    font-size: 2rem;
+    margin-bottom: 0;
   }
 
-  #layer-game,
-  #layer-history {
-    padding: 12px;
-  }
-
-  .review-token-grid,
-  .token-grid,
-  [data-role="token-grid"] {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
+  .token-card__label {
+    text-align: left;
   }
 }
 
-@media (min-width: 480px) and (max-width: 767px) {
-  .pouch-container,
-  .pouch-grid,
-  .pouches,
-  [data-role="pouch-container"],
-  #layer-idle .pouch-list,
-  #layer-idle .pouch-container {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-  }
-
-  .pouch-container > :first-child,
-  .pouch-grid > :first-child,
-  .pouches > :first-child,
-  [data-role="pouch-container"] > :first-child {
-    grid-column: span 2;
-  }
-
-  .review-token-grid,
-  .token-grid,
-  [data-role="token-grid"] {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-}
-
-@media (min-width: 768px) {
-  .app-shell,
-  main {
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  .pouch-container,
-  .pouch-grid,
-  .pouches,
-  [data-role="pouch-container"],
-  #layer-idle .pouch-list,
-  #layer-idle .pouch-container {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-    align-items: stretch;
-  }
-
-  #layer-history .history-list,
-  [data-role="history-list"] {
-    max-height: 60vh;
-    overflow: auto;
-    padding-right: 6px;
-  }
-}
-
+/* --- Accessibility: Reduced Motion --- */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -192,13 +85,5 @@ button,
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .pouch,
-  [data-pouch],
-  .token-card,
-  .token-reveal {
-    animation: none !important;
-    transition: none !important;
   }
 }

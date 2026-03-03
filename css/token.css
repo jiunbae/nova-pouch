@@ -28,115 +28,88 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 110px;
-  min-height: 130px;
-  padding: var(--space-md) var(--space-sm);
-  border-radius: var(--radius-lg);
+  width: 120px;
+  min-height: 150px;
+  padding: var(--space-16);
+  border-radius: var(--radius-20);
   text-align: center;
-  transition: transform var(--transition-fast),
-              box-shadow var(--transition-normal);
+  transition: all var(--transition-normal);
+  background: var(--color-surface);
+  box-shadow: var(--card-shadow-elevated);
+  border: 1.5px solid rgba(139, 119, 90, 0.2);
+  overflow: hidden;
+}
 
-  /* Paper card effect */
-  background: #FFFCF5;
-  border: 1.5px solid var(--card-border);
-  box-shadow: 0 2px 8px var(--card-shadow),
-              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+.token-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 6px;
+  background: currentColor;
+  opacity: 0.9;
 }
 
 .token-card__emoji {
-  font-size: 2rem;
+  font-size: 2.8rem;
   line-height: 1;
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-12);
 }
 
 .token-card__label {
-  font-size: 0.85rem;
-  color: var(--color-text);
-  word-break: keep-all;
-  line-height: 1.4;
-  font-weight: 500;
+  font-size: 1.05rem;
+  color: var(--color-text-primary);
+  font-weight: 800;
+  line-height: 1.3;
 }
 
 /* --- Token Card Color Variants --- */
 .token-card--red {
-  border-color: rgba(192, 57, 43, 0.35);
-  background: linear-gradient(160deg, #FFFCF5, #FCF0EE);
-  box-shadow: 0 2px 8px rgba(192, 57, 43, 0.08),
-              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  color: var(--color-red);
+  background: linear-gradient(135deg, #FFFFFF, #FFF0F1);
 }
 
 .token-card--blue {
-  border-color: rgba(36, 113, 163, 0.35);
-  background: linear-gradient(160deg, #FFFCF5, #F0F5FA);
-  box-shadow: 0 2px 8px rgba(36, 113, 163, 0.08),
-              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  color: var(--color-blue);
+  background: linear-gradient(135deg, #FFFFFF, #F0F7FF);
 }
 
 .token-card--green {
-  border-color: rgba(30, 132, 73, 0.35);
-  background: linear-gradient(160deg, #FFFCF5, #EFF8F2);
-  box-shadow: 0 2px 8px rgba(30, 132, 73, 0.08),
-              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  color: var(--color-green);
+  background: linear-gradient(135deg, #FFFFFF, #F0FFF9);
 }
 
-/* --- Token Card Art Accent (review step) --- */
-.token-card--step {
-  overflow: hidden;
-}
-
-.token-card--step::after {
-  content: '';
-  position: absolute;
-  right: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 72px;
-  height: 72px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: 0.12;
-  pointer-events: none;
-}
-
-.token-card--step.token-card--red::after {
-  background-image: url('../assets/images/paper-cut-pack-01/token-card-red.png');
-}
-
-.token-card--step.token-card--blue::after {
-  background-image: url('../assets/images/paper-cut-pack-01/token-card-blue.png');
-}
-
-.token-card--step.token-card--green::after {
-  background-image: url('../assets/images/paper-cut-pack-01/token-card-green.png');
-}
-
-/* --- Token Card: Drawn (shown in slot) --- */
+/* --- Token Card: Drawn --- */
 .token-card--drawn {
   width: 100%;
   flex-direction: row;
-  gap: var(--space-md);
+  justify-content: flex-start;
+  gap: var(--space-20);
   min-height: auto;
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-20) var(--space-24);
 }
 
-.token-card--drawn .token-card__emoji {
-  font-size: 2.2rem;
-  margin-bottom: 0;
+.token-card--drawn::before {
+  width: 8px;
+  height: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
 }
 
-.token-card--drawn .token-card__label {
-  font-size: 1rem;
-  text-align: left;
-}
 
 /* --- Token Animations --- */
 @keyframes token-rise {
-  from {
-    transform: translateY(100px) scale(0.5);
+  0% {
+    transform: translateY(40px) scale(0.8);
     opacity: 0;
   }
-  to {
+  70% {
+    transform: translateY(-4px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
     transform: translateY(0) scale(1);
     opacity: 1;
   }

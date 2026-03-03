@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Nova Pouch - 차원의 주머니에서 발견한 파편으로 세계를 기록하세요">
-  <meta name="theme-color" content="#0F0C29">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline'; font-src https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.jiun.dev">
+  <meta name="theme-color" content="#F5EDE0">
   <meta property="og:title" content="Nova Pouch">
   <meta property="og:description" content="차원의 주머니에서 발견한 파편으로 세계를 기록하세요">
-  <meta property="og:image" content="assets/images/paper-cut-pack-01/logo-hero-mark.png">
-  <link rel="icon" type="image/png" href="assets/images/paper-cut-pack-01/logo-app-icon.png">
-  <link rel="apple-touch-icon" href="assets/images/paper-cut-pack-01/logo-app-icon.png">
+  <meta property="og:image" content="assets/images/logo-hero-mark.png">
+  <link rel="icon" type="image/png" href="assets/images/logo-app-icon.png">
+  <link rel="apple-touch-icon" href="assets/images/logo-app-icon.png">
   <title>Nova Pouch</title>
 
   <!-- Fonts -->
@@ -30,45 +31,77 @@
   <link rel="stylesheet" href="css/steps.css">
   <link rel="stylesheet" href="css/screens.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/feed.css">
 </head>
 <body>
+  <a href="#main-content" class="sr-only skip-link">Skip to main content</a>
   <div id="app">
     <button id="btn-lang-toggle" class="lang-toggle" data-i18n="lang.toggle">EN</button>
+    <main id="main-content">
 
     <!-- ========== Layer: IDLE ========== -->
     <section id="layer-idle" class="layer layer--active">
       <div class="layer__inner">
         <header class="idle__header">
           <img
-            src="assets/images/paper-cut-pack-01/nova-pouch-paper-cut.png"
+            src="assets/images/nova-pouch-paper-cut.png"
             alt="Nova Pouch"
             class="idle__logo"
             width="160"
             height="160"
           >
-          <h1 class="idle__title">NOVA POUCH</h1>
-          <p class="idle__subtitle narrative-font" data-i18n="idle.subtitle">
-            막을 건너온 사소한 물건들,<br>
-            그 너머에 존재하는 것은<br>
-            거대한 세계와 사람들.<br>
-            할 수 있는 것은 오직 상상하는 일뿐.
+          <h1 class="idle__title">Nova Pouch</h1>
+          <p class="idle__subtitle" data-i18n="idle.subtitle">
+            차원의 주머니에서 발견한 파편으로<br>당신만의 세계를 기록하세요.
           </p>
+          <p class="idle__subtitle-source" data-i18n="idle.subtitle.source"></p>
         </header>
 
         <div class="idle__rules">
-          <ol class="idle__rules-list">
-            <li data-i18n="idle.rule1">세 개의 주머니에서 파편을 하나씩 뽑으세요</li>
-            <li data-i18n="idle.rule2">물건 + 속성 + 제약의 조합이 만들어집니다</li>
-            <li data-i18n="idle.rule3">이 조합이 일상인 세계를 상상하고 기록하세요</li>
-          </ol>
+          <ul class="idle__rules-list">
+            <li data-i18n="idle.rule1">세 개의 주머니에서 파편을 하나씩 뽑습니다.</li>
+            <li data-i18n="idle.rule2">물건, 속성, 제약의 조합이 만들어집니다.</li>
+            <li data-i18n="idle.rule3">이 조합이 일상인 세계를 상상하고 기록하세요.</li>
+          </ul>
         </div>
 
-        <button id="btn-start" class="btn btn--primary" data-i18n="idle.start" data-i18n-aria="aria.start" aria-label="게임 시작">
-          시작하기
-        </button>
+        <div id="idle-complete-section" class="daily-complete-section" hidden>
+          <div class="card">
+            <h2 class="daily-complete__title" data-i18n="daily.alreadyComplete">오늘의 기록을 완료했습니다</h2>
+            <div class="daily-complete__tokens" id="idle-complete-tokens"></div>
+            <p id="idle-complete-story" class="daily-complete__story"></p>
+            <div class="daily-complete__countdown">
+              <span class="countdown__label" data-i18n="countdown.label">다음 조합까지</span>
+              <span class="countdown__timer" id="idle-countdown-timer">00:00:00</span>
+            </div>
+          </div>
+        </div>
 
-        <button id="btn-history-idle" class="btn btn--ghost" data-i18n="idle.history" data-i18n-aria="aria.historyOpen" aria-label="기록 보관소 열기">
-          기록 보관소
+        <div class="idle__actions btn-group">
+          <button id="btn-start" class="btn btn--primary btn--full" data-i18n="idle.start" aria-label="게임 시작">
+            시작하기
+          </button>
+          <button id="btn-free-play" class="btn btn--secondary btn--full" data-i18n="daily.freePlay" data-mode="free" aria-label="자유 모드">
+            자유 모드
+          </button>
+        </div>
+
+        <div class="idle__secondary-actions">
+          <button id="btn-feed-idle" class="btn btn--ghost" data-i18n="feed.button" aria-label="다른 세계의 기록">
+            다른 세계의 기록
+          </button>
+          <button id="btn-history-idle" class="btn btn--ghost" data-i18n="idle.history" aria-label="기록 보관소 열기">
+            기록 보관소
+          </button>
+        </div>
+
+        <div id="daily-banner" class="daily-banner" hidden>
+          <span class="daily-banner__date" id="daily-date"></span>
+          <button class="daily-banner__share" id="btn-share-daily" aria-label="링크 공유">🔗</button>
+        </div>
+
+        <button id="btn-debug-flush" class="btn btn--ghost btn-debug" style="margin-top: auto; opacity: 0.3; font-size: 0.8rem;">
+          [DEBUG] Reset All Data
         </button>
       </div>
     </section>
@@ -78,79 +111,92 @@
       <div class="layer__inner">
 
         <!-- Progress Dots -->
-        <div class="step-progress">
-          <span class="step-progress__dot" data-step-dot="0"></span>
-          <span class="step-progress__dot" data-step-dot="1"></span>
-          <span class="step-progress__dot" data-step-dot="2"></span>
-          <span class="step-progress__dot" data-step-dot="3"></span>
+        <div class="step-progress" role="progressbar" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1" aria-label="Game progress">
+          <span class="step-progress__dot" data-step-dot="0" aria-hidden="true"></span>
+          <span class="step-progress__dot" data-step-dot="1" aria-hidden="true"></span>
+          <span class="step-progress__dot" data-step-dot="2" aria-hidden="true"></span>
+          <span class="step-progress__dot" data-step-dot="3" aria-hidden="true"></span>
         </div>
 
         <!-- Step Container -->
         <div class="step-container">
+          <div id="collected-stack" class="collected-stack"></div>
 
           <!-- Step 1: Draw Red -->
           <div id="step-draw-red" class="step">
             <div class="step__content">
-              <p class="step__instruction" data-i18n="draw.red.instruction">빨간 주머니를 열어보세요</p>
-              <p class="step__sub-instruction" data-i18n="draw.sub">주머니를 탭하면 파편이 나타납니다</p>
-              <div class="step__collected" id="step-collected-red"></div>
-              <button id="step-pouch-red" class="pouch pouch--red pouch--step" data-pouch="red" data-i18n-aria="aria.draw.red" aria-label="빨간 주머니에서 토큰 뽑기">
-                <span class="pouch__pattern"></span>
-                <span class="pouch__label" data-i18n="pouch.red.label">빨간 주머니</span>
-              </button>
-              <div id="step-token-red" class="step__token-reveal" aria-live="polite"></div>
+              <div class="pouch-wrapper">
+                <button id="step-pouch-red" class="pouch pouch--red pouch--step" data-pouch="red" aria-label="빨간 주머니">
+                  <span class="pouch__pattern"></span>
+                </button>
+                <div id="step-token-red" class="step__token-reveal" aria-live="polite"></div>
+              </div>
+              <div class="step__text-group">
+                <p class="step__instruction" data-i18n="draw.red.instruction">빨간 주머니를 열어보세요</p>
+                <p class="step__sub-instruction" data-i18n="draw.sub">주머니를 탭하면 파편이 나타납니다</p>
+              </div>
             </div>
-            <div class="step__actions" id="step-actions-red" hidden>
-              <button class="btn btn--primary btn--full" data-action="confirm-pouch" data-pouch="red" data-i18n="draw.confirm" data-i18n-aria="aria.confirm" aria-label="확인">
-                확인
-              </button>
-              <button class="btn btn--secondary btn--full" data-action="redraw-pouch" data-pouch="red" data-i18n="draw.redraw" data-i18n-aria="aria.redraw" aria-label="다시 뽑기">
-                다시 뽑기
-              </button>
+            <div class="step__actions">
+              <div class="step__actions-row">
+                <button id="btn-action-red" class="btn btn--pouch-red btn--full" data-action="main-pouch-btn" data-pouch="red">
+                  <span class="btn-text" data-i18n="pouch.red.label">빨간 주머니 열기</span>
+                </button>
+                <button class="btn btn--redraw" data-action="redraw-pouch" data-pouch="red" hidden aria-label="다시 뽑기">
+                  <span class="btn--redraw__icon">↺</span>
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Step 2: Draw Blue -->
           <div id="step-draw-blue" class="step">
             <div class="step__content">
-              <p class="step__instruction" data-i18n="draw.blue.instruction">파란 주머니를 열어보세요</p>
-              <p class="step__sub-instruction" data-i18n="draw.sub">주머니를 탭하면 파편이 나타납니다</p>
-              <div class="step__collected" id="step-collected-blue"></div>
-              <button id="step-pouch-blue" class="pouch pouch--blue pouch--step" data-pouch="blue" data-i18n-aria="aria.draw.blue" aria-label="파란 주머니에서 토큰 뽑기">
-                <span class="pouch__pattern"></span>
-                <span class="pouch__label" data-i18n="pouch.blue.label">파란 주머니</span>
-              </button>
-              <div id="step-token-blue" class="step__token-reveal" aria-live="polite"></div>
+              <div class="pouch-wrapper">
+                <button id="step-pouch-blue" class="pouch pouch--blue pouch--step" data-pouch="blue" aria-label="파란 주머니">
+                  <span class="pouch__pattern"></span>
+                </button>
+                <div id="step-token-blue" class="step__token-reveal" aria-live="polite"></div>
+              </div>
+              <div class="step__text-group">
+                <p class="step__instruction" data-i18n="draw.blue.instruction">파란 주머니를 열어보세요</p>
+                <p class="step__sub-instruction" data-i18n="draw.sub">주머니를 탭하면 파편이 나타납니다</p>
+              </div>
             </div>
-            <div class="step__actions" id="step-actions-blue" hidden>
-              <button class="btn btn--primary btn--full" data-action="confirm-pouch" data-pouch="blue" data-i18n="draw.confirm" data-i18n-aria="aria.confirm" aria-label="확인">
-                확인
-              </button>
-              <button class="btn btn--secondary btn--full" data-action="redraw-pouch" data-pouch="blue" data-i18n="draw.redraw" data-i18n-aria="aria.redraw" aria-label="다시 뽑기">
-                다시 뽑기
-              </button>
+            <div class="step__actions">
+              <div class="step__actions-row">
+                <button id="btn-action-blue" class="btn btn--pouch-blue btn--full" data-action="main-pouch-btn" data-pouch="blue">
+                  <span class="btn-text" data-i18n="pouch.blue.label">파란 주머니 열기</span>
+                </button>
+                <button class="btn btn--redraw" data-action="redraw-pouch" data-pouch="blue" hidden aria-label="다시 뽑기">
+                  <span class="btn--redraw__icon">↺</span>
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Step 3: Draw Green -->
           <div id="step-draw-green" class="step">
             <div class="step__content">
-              <p class="step__instruction" data-i18n="draw.green.instruction">초록 주머니를 열어보세요</p>
-              <p class="step__sub-instruction" data-i18n="draw.sub">주머니를 탭하면 파편이 나타납니다</p>
-              <div class="step__collected" id="step-collected-green"></div>
-              <button id="step-pouch-green" class="pouch pouch--green pouch--step" data-pouch="green" data-i18n-aria="aria.draw.green" aria-label="초록 주머니에서 토큰 뽑기">
-                <span class="pouch__pattern"></span>
-                <span class="pouch__label" data-i18n="pouch.green.label">초록 주머니</span>
-              </button>
-              <div id="step-token-green" class="step__token-reveal" aria-live="polite"></div>
+              <div class="pouch-wrapper">
+                <button id="step-pouch-green" class="pouch pouch--green pouch--step" data-pouch="green" aria-label="초록 주머니">
+                  <span class="pouch__pattern"></span>
+                </button>
+                <div id="step-token-green" class="step__token-reveal" aria-live="polite"></div>
+              </div>
+              <div class="step__text-group">
+                <p class="step__instruction" data-i18n="draw.green.instruction">초록 주머니를 열어보세요</p>
+                <p class="step__sub-instruction" data-i18n="draw.sub">주머니를 탭하면 파편이 나타납니다</p>
+              </div>
             </div>
-            <div class="step__actions" id="step-actions-green" hidden>
-              <button class="btn btn--primary btn--full" data-action="confirm-pouch" data-pouch="green" data-i18n="draw.confirm" data-i18n-aria="aria.confirm" aria-label="확인">
-                확인
-              </button>
-              <button class="btn btn--secondary btn--full" data-action="redraw-pouch" data-pouch="green" data-i18n="draw.redraw" data-i18n-aria="aria.redraw" aria-label="다시 뽑기">
-                다시 뽑기
-              </button>
+            <div class="step__actions">
+              <div class="step__actions-row">
+                <button id="btn-action-green" class="btn btn--pouch-green btn--full" data-action="main-pouch-btn" data-pouch="green">
+                  <span class="btn-text" data-i18n="pouch.green.label">초록 주머니 열기</span>
+                </button>
+                <button class="btn btn--redraw" data-action="redraw-pouch" data-pouch="green" hidden aria-label="다시 뽑기">
+                  <span class="btn--redraw__icon">↺</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -176,20 +222,16 @@
                 </div>
               </div>
 
-              <p id="review-combo-text" class="review__combo narrative-font"></p>
+              <p id="review-combo-text" class="review__combo narrative-font" tabindex="-1"></p>
 
-              <p class="review__prompt narrative-font" data-i18n="review.prompt">
+              <p class="review__prompt" data-i18n="review.prompt">
                 이 물건이 일상적으로 쓰이는<br>세계는 어떤 모습일까요?
               </p>
-            </section>
 
-            <!-- Writing section -->
-            <section id="step-writing" class="flow-section flow-section--collapsed">
-              <div class="writing__form">
+              <div id="writing-form" class="writing__form" hidden>
                 <textarea
                   id="step-input-story"
                   class="form-textarea"
-                  placeholder="이 세계에서는..."
                   data-i18n-placeholder="writing.storyPlaceholder"
                   maxlength="2000"
                   data-i18n-aria="aria.storyInput"
@@ -199,40 +241,40 @@
                   <span id="step-char-count">0</span>/2000
                 </div>
               </div>
-
-              <button id="step-btn-complete" class="btn btn--primary btn--full" disabled data-i18n="writing.complete" data-i18n-aria="aria.complete" aria-label="기록 완료">
-                기록 완료
-              </button>
             </section>
+
+            <!-- Morphing CTA button: "이 세계를 기록하기" → "기록 완료" -->
+            <button id="btn-start-writing" class="btn btn--primary btn--full" data-i18n="review.write" data-i18n-aria="aria.write" aria-label="이 세계를 상상하기">
+              이 세계를 상상하기
+            </button>
 
             <!-- Complete section -->
             <section id="step-complete" class="flow-section flow-section--collapsed">
-              <h2 class="complete__title narrative-font" data-i18n="complete.title">세계가 기록되었습니다</h2>
+              <h2 class="complete__title" data-i18n="complete.title">세계가 기록되었습니다</h2>
 
               <div class="complete__card">
                 <p class="complete__combo" id="complete-combo"></p>
                 <p class="complete__story" id="complete-story"></p>
               </div>
 
-              <div class="complete__rating">
-                <p class="complete__rating-label" data-i18n="complete.ratingLabel">이 기록에 별점을 매겨주세요:</p>
-                <div class="star-rating" id="step-star-rating" data-i18n-aria="aria.starRating" aria-label="별점 선택">
-                  <button class="star" data-value="1" aria-label="1점">&#9734;</button>
-                  <button class="star" data-value="2" aria-label="2점">&#9734;</button>
-                  <button class="star" data-value="3" aria-label="3점">&#9734;</button>
-                  <button class="star" data-value="4" aria-label="4점">&#9734;</button>
-                  <button class="star" data-value="5" aria-label="5점">&#9734;</button>
-                </div>
+              <div class="share-panel" id="share-panel">
+                <button class="share-panel__btn btn btn--secondary" data-action="share-link">
+                  <span data-i18n="share.copyLink">링크 복사</span>
+                </button>
+                <button class="share-panel__btn btn btn--secondary" data-action="share-download">
+                  <span data-i18n="share.download">이미지 저장</span>
+                </button>
+                <button class="share-panel__btn btn btn--secondary" data-action="copy-result">
+                  <span data-i18n="share.copyResult">결과 복사</span>
+                </button>
               </div>
 
-              <div class="step__actions">
-                <button id="step-btn-restart" class="btn btn--primary btn--full" data-i18n="complete.restart" data-i18n-aria="aria.restart" aria-label="다시 탐험하기">
-                  다시 탐험
+                <div class="step__actions btn-group">
+                <button id="step-btn-restart" class="btn btn--primary btn--full" data-i18n="complete.restart" aria-label="다시 탐험하기">다시 탐험</button>
+                <button id="btn-feed-complete" class="btn btn--secondary btn--full" data-i18n="feed.seeOthers" aria-label="다른 사람들은 어떻게 상상했을까?">
+                  다른 사람의 상상 보기
                 </button>
-                <button id="step-btn-share" class="btn btn--secondary btn--full" data-i18n="complete.share" data-i18n-aria="aria.share" aria-label="공유하기">
-                  공유하기
-                </button>
-                <button id="step-btn-history" class="btn btn--ghost btn--full" data-i18n="complete.history" data-i18n-aria="aria.history" aria-label="기록 보관소">
+                <button id="step-btn-history" class="btn btn--ghost btn--full" data-i18n="complete.history" aria-label="기록 보관소">
                   기록 보관소
                 </button>
               </div>
@@ -244,7 +286,7 @@
     </section>
 
     <!-- ========== Layer: HISTORY (overlay) ========== -->
-    <section id="layer-history" class="layer layer--overlay">
+    <section id="layer-history" class="layer layer--overlay" role="dialog" aria-modal="true" aria-label="기록 보관소">
       <div class="layer__inner">
         <div class="history__header">
           <button id="btn-close-history" class="btn btn--ghost btn--back" data-i18n="history.back" data-i18n-aria="aria.close" aria-label="닫기">
@@ -255,7 +297,6 @@
 
         <div class="history__stats" id="history-stats">
           <span id="stats-total">총 0개의 세계를 기록</span>
-          <span id="stats-avg-rating">평균 &#9733; 0</span>
         </div>
 
         <div class="history__list" id="history-list">
@@ -268,9 +309,30 @@
       </div>
     </section>
 
+    <!-- ========== Layer: FEED (overlay) ========== -->
+    <section id="layer-feed" class="layer layer--overlay" role="dialog" aria-modal="true" aria-label="다른 세계의 기록">
+      <div class="layer__inner">
+        <div class="feed-header">
+          <button id="btn-close-feed" class="btn btn--ghost btn--back" data-i18n="feed.back" aria-label="닫기">
+            ← 돌아가기
+          </button>
+          <h2 class="feed-title" data-i18n="feed.title">다른 세계의 기록</h2>
+        </div>
+        <div id="feed-list" class="feed-list"></div>
+        <button id="btn-feed-more" class="btn btn--ghost feed-load-more" data-i18n="feed.loadMore" hidden>
+          더 보기
+        </button>
+      </div>
+    </section>
+
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden>
+      <span id="toast-message"></span>
+    </div>
   </div>
 
   <!-- App Entry Point -->
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="/src/app.ts"></script>
 </body>
 </html>
