@@ -92,12 +92,6 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'share.record':         '기록: {story}',
     'share.noCombo':        '조합 없음',
     'share.shareTitle':     'Nova Pouch 기록',
-    'share.download':       '이미지 저장',
-    'share.twitter':        'Twitter 공유',
-    'share.native':         '공유하기',
-    'share.copyResult':     '결과 복사',
-    'share.copyLink':       '링크 복사',
-    'share.clipboard':      '클립보드에 복사되었습니다!',
 
     // Aria labels
     'aria.pouch.red':       '빨간 주머니',
@@ -251,13 +245,6 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'share.record':         'Record: {story}',
     'share.noCombo':        'No combo',
     'share.shareTitle':     'Nova Pouch Record',
-    'share.download':       'Save Image',
-    'share.twitter':        'Share on Twitter',
-    'share.native':         'Share',
-    'share.copyResult':     'Copy Text',
-    'share.copyLink':       'Copy Link',
-    'share.clipboard':      'Copied to clipboard!',
-
 
     // Aria labels
     'aria.pouch.red':       'Red Pouch',

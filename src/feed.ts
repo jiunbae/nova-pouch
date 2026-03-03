@@ -1,7 +1,7 @@
 /* feed.ts — Community Feed (lazy-loaded) */
 
 import { apiGet, apiPost } from './api';
-import type { FeedState } from './types';
+import type { FeedState, FeedRecord } from './types';
 
 const FEED_PAGE_SIZE = 20;
 const CACHE_TTL_MS = 2 * 60 * 1000;

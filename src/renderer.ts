@@ -306,6 +306,13 @@ function updateProgressDots(activeIndex: number): void {
    ---------------------------------------------------------- */
 
 let _prevFlowPhase: string | null = null;
+let _stateInstance: GameStateInstance | null = null;
+
+function dispatchAction(action: string, payload?: unknown): void {
+  if (_stateInstance && typeof _stateInstance.dispatch === 'function') {
+    _stateInstance.dispatch(action, payload);
+  }
+}
 
 function updatePostDrawFlow(state: GameStateSnapshot): void {
   const phase = state.phase === PHASES.HISTORY
@@ -657,7 +664,7 @@ function renderWriting(state: GameStateSnapshot): void {
 }
 
 function renderComplete(state: GameStateSnapshot): void {
-  if (dom.completeCombo) dom.completeCombo.textContent = formatCombo(state.drawnTokens, getLocale());
+  if (dom.completeCombo) dom.completeCombo.textContent = formatCombo(state.drawnTokens);
   if (dom.completeStory) dom.completeStory.textContent = state.userStory;
 }
 
@@ -862,6 +869,7 @@ let _historyLoader: (() => HistoryData) | null = null;
 export function initRenderer(stateInstance: GameStateInstance, historyLoader: (() => HistoryData) | null = null): void {
   cacheDOM();
   _historyLoader = historyLoader;
+  _stateInstance = stateInstance;
 
   // Set initial display states
   if (dom.layers.history) {

@@ -17,7 +17,7 @@ import {
 import { startCountdown, stopCountdown } from './countdown';
 import { downloadShareCard, shareToTwitter, nativeShare, buildCompactShare } from './share';
 import { submitRecord } from './feed';
-import type { GameStateSnapshot, HistoryData, FeedState, DailyCompletion, Token, PouchColor } from './types';
+import type { GameStateSnapshot, HistoryData, HistorySession, FeedState, DailyCompletion, Token, PouchColor } from './types';
 
 const MIN_STORY_LENGTH = 50;
 const MAX_STORY_LENGTH = 2000;
