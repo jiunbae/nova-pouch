@@ -75,6 +75,8 @@ function bootstrap(): void {
   applyAccessibilityLabels();
   initOverlayKeyHandlers();
   checkDailyState();
+  initTheme();
+  bindThemeToggle();
 
   // --- Check for shared result link ---
   handleSharedLink();
@@ -288,6 +290,32 @@ function bindLangToggle(): void {
   });
 }
 
+const THEMES = ['default', 'sci-fi', 'fantasy'] as const;
+type Theme = (typeof THEMES)[number];
+
+function initTheme(): void {
+  const saved = localStorage.getItem('nova-pouch-theme') as Theme | null;
+  if (saved && THEMES.includes(saved)) {
+    document.body.dataset.theme = saved;
+  }
+}
+
+function bindThemeToggle(): void {
+  const btn = document.getElementById('btn-theme-toggle');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const current = (document.body.dataset.theme || 'default') as Theme;
+    const nextIdx = (THEMES.indexOf(current) + 1) % THEMES.length;
+    const next = THEMES[nextIdx];
+    
+    document.body.dataset.theme = next;
+    localStorage.setItem('nova-pouch-theme', next);
+    
+    // Feedback
+    if (navigator.vibrate) navigator.vibrate(5);
+  });
+}
+
 
 function initDailyBanner(): void {
   const banner = document.getElementById('daily-banner');
@@ -454,22 +482,29 @@ function renderFeedCards(feedState: FeedState): void {
 
     const tokens = record.tokens || {};
     const authorName = escapeHtml(record.user?.displayName || record.anonName || t('feed.anonymous'));
+    const displayDate = record.date || '';
 
-    const redChip = tokens.red?.label ? `<span class="feed-card__token-chip">${escapeHtml(tokens.red.emoji || '')} ${escapeHtml(tokens.red.label)}</span>` : '';
-    const blueChip = tokens.blue?.label ? `<span class="feed-card__token-chip">${escapeHtml(tokens.blue.emoji || '')} ${escapeHtml(tokens.blue.label)}</span>` : '';
-    const greenChip = tokens.green?.label ? `<span class="feed-card__token-chip">${escapeHtml(tokens.green.emoji || '')} ${escapeHtml(tokens.green.label)}</span>` : '';
+    const redChip = tokens.red?.label ? `<span class="collected-chip collected-chip--red">${escapeHtml(tokens.red.emoji || '')} ${escapeHtml(tokens.red.label)}</span>` : '';
+    const blueChip = tokens.blue?.label ? `<span class="collected-chip collected-chip--blue">${escapeHtml(tokens.blue.emoji || '')} ${escapeHtml(tokens.blue.label)}</span>` : '';
+    const greenChip = tokens.green?.label ? `<span class="collected-chip collected-chip--green">${escapeHtml(tokens.green.emoji || '')} ${escapeHtml(tokens.green.label)}</span>` : '';
+    const likeHtml = record.source === 'preset'
+      ? ''
+      : `<button class="feed-card__like ${feedState.likedIds?.has(record.id) ? 'is-liked' : ''}" data-record-id="${escapeHtml(record.id)}" aria-pressed="${feedState.likedIds?.has(record.id) ? 'true' : 'false'}">
+          <span class="like-icon">${feedState.likedIds?.has(record.id) ? '❤️' : '🤍'}</span>
+          <span class="like-count">${record.likeCount || 0}</span>
+        </button>`;
 
     card.innerHTML = `
+      <div class="feed-card__header">
+        <div class="feed-card__author">${authorName}</div>
+        <div class="feed-card__date">${displayDate}</div>
+      </div>
       <div class="feed-card__tokens">
         ${redChip}${blueChip}${greenChip}
       </div>
-      <div class="feed-card__author">${authorName}</div>
       <div class="feed-card__story">${escapeHtml(record.story || '')}</div>
       <div class="feed-card__actions">
-        <button class="feed-card__like ${feedState.likedIds?.has(record.id) ? 'is-liked' : ''}" data-record-id="${escapeHtml(record.id)}" aria-pressed="${feedState.likedIds?.has(record.id) ? 'true' : 'false'}">
-          <span class="like-icon">${feedState.likedIds?.has(record.id) ? '❤️' : '🤍'}</span>
-          <span class="like-count">${record.likeCount || 0}</span>
-        </button>
+        ${likeHtml}
       </div>
     `;
 

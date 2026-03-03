@@ -165,6 +165,8 @@ export interface FeedRecord {
   user?: { displayName?: string };
   anonName?: string;
   likeCount: number;
+  date?: string;
+  source?: 'api' | 'preset';
 }
 
 export interface FeedState {

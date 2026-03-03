@@ -55,7 +55,10 @@
         { "id": "red-047", "label": "클립",     "labelEn": "clip",          "emoji": "🖇️",  "difficulty": 1, "tags": ["일상", "도구"] },
         { "id": "red-048", "label": "포크",     "labelEn": "fork",          "emoji": "🍴",  "difficulty": 1, "tags": ["일상", "도구"] },
         { "id": "red-049", "label": "냄비",     "labelEn": "pot",           "emoji": "🍲",  "difficulty": 1, "tags": ["일상", "도구"] },
-        { "id": "red-050", "label": "쟁반",     "labelEn": "tray",          "emoji": "🍽️",  "difficulty": 1, "tags": ["일상", "도구"] }
+        { "id": "red-050", "label": "쟁반",     "labelEn": "tray",          "emoji": "🍽️",  "difficulty": 1, "tags": ["일상", "도구"] },
+        { "id": "red-051", "label": "향수병",   "labelEn": "perfume bottle","emoji": "🧴",  "difficulty": 1, "tags": ["일상", "도구"] },
+        { "id": "red-052", "label": "청진기",   "labelEn": "stethoscope",   "emoji": "🩺",  "difficulty": 2, "tags": ["의료", "도구"] },
+        { "id": "red-053", "label": "열쇠고리", "labelEn": "keychain",      "emoji": "🗝️",  "difficulty": 1, "tags": ["일상", "도구"] }
       ]
     },
     "blue": {
@@ -112,7 +115,11 @@
         { "id": "blue-047", "label": "진동하는",           "labelEn": "vibrating",             "emoji": "📳",  "difficulty": 1, "tags": ["감각", "물리"] },
         { "id": "blue-048", "label": "운명을 바꾸는",      "labelEn": "fate-changing",         "emoji": "🎲",  "difficulty": 3, "tags": ["초자연", "정신"] },
         { "id": "blue-049", "label": "자석처럼 끌어당기는", "labelEn": "magnetic",              "emoji": "🧲",  "difficulty": 1, "tags": ["물리", "환경"] },
-        { "id": "blue-050", "label": "전기를 만드는",      "labelEn": "electricity-generating","emoji": "⚡",  "difficulty": 2, "tags": ["물리", "환경"] }
+        { "id": "blue-050", "label": "전기를 만드는",      "labelEn": "electricity-generating","emoji": "⚡",  "difficulty": 2, "tags": ["물리", "환경"] },
+        { "id": "blue-051", "label": "몸에 직접 걸치지 못하는 장식용으로 쓰이는", "labelEn": "decorative but not wearable", "emoji": "🎀", "difficulty": 2, "tags": ["사회", "착용"] },
+        { "id": "blue-052", "label": "손목에 차는 한 묶음의", "labelEn": "worn as a wrist bundle", "emoji": "⌚", "difficulty": 2, "tags": ["물리", "착용"] },
+        { "id": "blue-053", "label": "예/아니오 표시가된 노란색", "labelEn": "yellow with yes/no indicators", "emoji": "🟨", "difficulty": 2, "tags": ["시각", "사회"] },
+        { "id": "blue-054", "label": "실시간으로 숫자가 표시되는", "labelEn": "displaying numbers in real time", "emoji": "🔢", "difficulty": 2, "tags": ["시간", "정보"] }
       ]
     },
     "green": {
@@ -169,7 +176,8 @@
         { "id": "green-047", "label": "밤에 스스로 움직이는",       "labelEn": "moves on its own at night",      "emoji": "👣",  "difficulty": 2, "tags": ["시간", "불안정"] },
         { "id": "green-048", "label": "꿈에서만 진짜 모습인",       "labelEn": "true form only in dreams",       "emoji": "💭",  "difficulty": 3, "tags": ["정신", "조건"] },
         { "id": "green-049", "label": "감사 인사를 해야 작동하는",  "labelEn": "requires gratitude to work",     "emoji": "🙏",  "difficulty": 1, "tags": ["소통", "조건"] },
-        { "id": "green-050", "label": "7번만 사용 가능한",          "labelEn": "limited to 7 uses",              "emoji": "7️⃣",  "difficulty": 2, "tags": ["횟수", "소모"] }
+        { "id": "green-050", "label": "7번만 사용 가능한",          "labelEn": "limited to 7 uses",              "emoji": "7️⃣",  "difficulty": 2, "tags": ["횟수", "소모"] },
+        { "id": "green-051", "label": "매일 다시 채워야 하는",      "labelEn": "must be refilled daily",         "emoji": "🧪",  "difficulty": 2, "tags": ["시간", "조건"] }
       ]
     }
   }

@@ -21,7 +21,6 @@
   font-size: 0.9rem;
 }
 
-/* --- Token Card --- */
 .token-card {
   position: relative;
   display: flex;
@@ -38,6 +37,16 @@
   box-shadow: var(--card-shadow-elevated);
   border: 1.5px solid rgba(139, 119, 90, 0.2);
   overflow: hidden;
+}
+
+[data-theme="sci-fi"] .token-card {
+  clip-path: polygon(15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 15%);
+  border: 1px solid var(--color-primary);
+}
+
+[data-theme="fantasy"] .token-card {
+  border: 3px double var(--color-primary-dark);
+  background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.3) 0%, transparent 100%);
 }
 
 .token-card::before {

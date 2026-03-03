@@ -59,27 +59,35 @@
 
 .feed-card__tokens {
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-8);
-  margin-bottom: var(--space-12);
+  margin-bottom: var(--space-16);
 }
 
-.feed-card__token-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border-radius: var(--radius-full);
-  font-size: 0.85rem;
-  font-weight: 700;
-  background: var(--color-surface-secondary);
-  color: var(--color-text-secondary);
+.feed-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* 상단 정렬로 줄바꿈 대응 */
+  gap: var(--space-12);
+  margin-bottom: var(--space-12);
 }
 
 .feed-card__author {
-  font-size: 0.85rem;
+  font-size: 0.95rem; /* 타이틀 강조 */
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  flex: 1; /* 남은 공간 모두 차지 */
+}
+
+.feed-card__date {
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-text-tertiary);
-  margin-bottom: var(--space-12);
+  white-space: nowrap; /* 날짜는 절대 줄바꿈 금지 */
+  flex-shrink: 0; /* 공간이 부족해도 줄어들지 않음 */
+  padding-top: 2px; /* 타이틀 첫 줄과 시각적 높이 맞춤 */
 }
 
 .feed-card__story {

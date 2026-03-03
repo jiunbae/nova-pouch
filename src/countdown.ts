@@ -7,12 +7,15 @@ export function startCountdown(targetEl: HTMLElement): void {
   stopCountdown();
 
   function update(): void {
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
-    tomorrow.setUTCHours(0, 0, 0, 0);
-
-    const diff = tomorrow.getTime() - now.getTime();
+    const now = Date.now();
+    // Next KST midnight = next UTC 15:00
+    const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+    const kstNow = new Date(now + KST_OFFSET_MS);
+    const nextKstMidnight = new Date(kstNow);
+    nextKstMidnight.setUTCDate(nextKstMidnight.getUTCDate() + 1);
+    nextKstMidnight.setUTCHours(0, 0, 0, 0);
+    // Convert back to real time
+    const diff = nextKstMidnight.getTime() - KST_OFFSET_MS - now;
     if (diff <= 0) {
       targetEl.textContent = '00:00:00';
       stopCountdown();

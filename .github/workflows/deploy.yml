@@ -28,6 +28,17 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+      - name: Inject Google Analytics
+        if: ${{ vars.GTAG_ID != '' }}
+        run: sed -i "s/__GTAG_ID__/${{ vars.GTAG_ID }}/g" dist/index.html
+
+      - name: Inject AdSense
+        if: ${{ vars.ADSENSE_CLIENT != '' }}
+        run: |
+          sed -i "s/__ADSENSE_CLIENT__/${{ vars.ADSENSE_CLIENT }}/g" dist/index.html
+          sed -i "s/__ADSENSE_SLOT_COMPLETE__/${{ vars.ADSENSE_SLOT_COMPLETE }}/g" dist/index.html
+          sed -i "s/__ADSENSE_SLOT_IDLE__/${{ vars.ADSENSE_SLOT_IDLE }}/g" dist/index.html
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -7,7 +7,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "npm run build && node test-all.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "generate:theme-assets": "node scripts/generate-themed-assets.mjs"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

@@ -4,8 +4,9 @@ import { getTokensByPouch } from './tokens';
 import type { RegistryToken, DailyResult, DailyCompletion, PouchColor } from './types';
 
 const DAILY_COMPLETION_KEY = 'nova-pouch-daily-completion';
-/** Epoch: 김초엽 《양면의 조개껍데기》 초판1쇄 발매일 */
-const LAUNCH_DATE = new Date('2025-08-27T00:00:00Z');
+/** Epoch: 김초엽 《양면의 조개껍데기》 초판1쇄 발매일 (KST midnight) */
+const LAUNCH_DATE = new Date('2025-08-26T15:00:00Z'); // 2025-08-27 00:00 KST
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 
 let _dailyTokens: Record<PouchColor, RegistryToken> | null = null;
 let _dailyDate: string | null = null;
@@ -33,14 +34,16 @@ export function computeDailyTokens(dateStr?: string): Record<PouchColor, Registr
   };
 }
 
-/** Today's date as 'YYYY-MM-DD' in UTC. */
+/** Today's date as 'YYYY-MM-DD' in KST (UTC+9). */
 export function todayDateString(): string {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date(Date.now() + KST_OFFSET_MS);
+  return now.toISOString().slice(0, 10);
 }
 
 export function getDailyNumber(dateStr?: string): number {
   const d = dateStr || todayDateString();
-  const target = new Date(`${d}T00:00:00Z`);
+  // Convert date string to KST midnight (same reference frame as LAUNCH_DATE)
+  const target = new Date(`${d}T00:00:00+09:00`);
   return Math.floor((target.getTime() - LAUNCH_DATE.getTime()) / 86_400_000) + 1;
 }
 

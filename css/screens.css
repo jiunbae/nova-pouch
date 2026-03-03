@@ -3,6 +3,27 @@
    ============================================================ */
 
 /* ========== IDLE Layer ========== */
+:root {
+  --idle-item-key-image: url('../assets/images/themes/item-key-default.png');
+  --idle-item-compass-image: url('../assets/images/themes/item-compass-default.png');
+  --idle-item-filter: saturate(0.95) brightness(1.02) drop-shadow(0 2px 6px rgba(101, 78, 50, 0.18));
+  --idle-item-opacity: 0.13;
+}
+
+[data-theme="sci-fi"] {
+  --idle-item-key-image: url('../assets/images/themes/item-key-sci-fi.png');
+  --idle-item-compass-image: url('../assets/images/themes/item-compass-sci-fi.png');
+  --idle-item-filter: brightness(1.14) saturate(1.45) contrast(1.08) drop-shadow(0 0 12px rgba(56, 189, 248, 0.42));
+  --idle-item-opacity: 0.24;
+}
+
+[data-theme="fantasy"] {
+  --idle-item-key-image: url('../assets/images/themes/item-key-fantasy.png');
+  --idle-item-compass-image: url('../assets/images/themes/item-compass-fantasy.png');
+  --idle-item-filter: sepia(0.22) saturate(0.88) brightness(0.9) contrast(1.08) drop-shadow(0 2px 7px rgba(45, 27, 14, 0.38));
+  --idle-item-opacity: 0.2;
+}
+
 #layer-idle {
   background-image: 
     radial-gradient(circle at 10% 20%, rgba(184, 134, 11, 0.05) 0%, transparent 40%),
@@ -18,7 +39,9 @@
   background-repeat: no-repeat;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.08;
+  filter: var(--idle-item-filter);
+  opacity: var(--idle-item-opacity);
+  transition: all var(--transition-slow);
 }
 
 #layer-idle::before {
@@ -26,7 +49,7 @@
   left: 5%;
   width: 120px;
   height: 120px;
-  background-image: url('../assets/images/item-key.png');
+  background-image: var(--idle-item-key-image);
   animation: float-left 8s ease-in-out infinite;
 }
 
@@ -35,7 +58,7 @@
   right: 5%;
   width: 100px;
   height: 100px;
-  background-image: url('../assets/images/item-compass.png');
+  background-image: var(--idle-item-compass-image);
   animation: float-right 10s ease-in-out infinite;
 }
 
@@ -47,6 +70,52 @@
 @keyframes float-right {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-12px) rotate(-5deg); }
+}
+
+/* --- Theme Specific Idle Decor --- */
+
+/* Sci-Fi: Holographic/Digital feel */
+[data-theme="sci-fi"] #layer-idle::before,
+[data-theme="sci-fi"] #layer-idle::after {
+  filter: hue-rotate(180deg) brightness(1.5) drop-shadow(0 0 5px var(--color-primary));
+  opacity: 0.2;
+}
+
+[data-theme="sci-fi"] #layer-idle::after {
+  background-image: none;
+  content: '⚡';
+  font-size: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fantasy: Ancient/Ink feel */
+[data-theme="fantasy"] #layer-idle::before,
+[data-theme="fantasy"] #layer-idle::after {
+  filter: sepia(1) contrast(1.5) brightness(0.7);
+  opacity: 0.08; /* Extremely subtle to prioritize text */
+}
+
+[data-theme="fantasy"] .idle__title {
+  color: var(--color-text-primary);
+  font-weight: 900;
+  text-shadow: none;
+}
+
+[data-theme="fantasy"] .idle__subtitle {
+  color: var(--color-text-secondary);
+  font-weight: 800;
+  font-size: 1.3rem;
+}
+
+[data-theme="fantasy"] .complete__title {
+  color: #1A0F0A;
+}
+
+[data-theme="fantasy"] .complete__card {
+  border: 2px solid #3E2723; /* Darker border for definition */
+  background-color: #FFFFFF;
 }
 
 #layer-idle .layer__inner {
@@ -75,6 +144,14 @@
   animation: logo-float 4s var(--ease-toss) infinite;
 }
 
+[data-theme="sci-fi"] .idle__logo {
+  filter: hue-rotate(180deg) brightness(1.2) drop-shadow(0 0 15px var(--color-primary));
+}
+
+[data-theme="fantasy"] .idle__logo {
+  filter: sepia(0.5) contrast(1.1);
+}
+
 @keyframes logo-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-12px); }
@@ -86,6 +163,12 @@
   letter-spacing: -0.5px;
   color: var(--color-text-primary);
   margin-bottom: var(--space-12);
+}
+
+[data-theme="sci-fi"] .idle__title {
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px var(--color-primary-soft);
 }
 
 .idle__subtitle {
@@ -113,6 +196,11 @@
   margin: 0 auto;
 }
 
+[data-theme="sci-fi"] .idle__rules {
+  border: 1px solid var(--color-primary-soft);
+  background: rgba(56, 189, 248, 0.05);
+}
+
 .idle__rules-list {
   display: flex;
   flex-direction: column;
@@ -136,6 +224,69 @@
   border-radius: 50%;
   background-color: var(--color-primary);
   flex-shrink: 0;
+}
+
+[data-theme="sci-fi"] .idle__rules-list li::before {
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+/* --- Ad Container --- */
+.ad-container {
+  width: 100%;
+  max-width: 400px;
+  margin: var(--space-16) auto;
+  min-height: 50px;
+  overflow: hidden;
+  border-radius: var(--radius-12);
+}
+
+.ad-container:empty,
+.ad-container ins[data-ad-status="unfilled"] {
+  display: none;
+}
+
+/* --- Idle Footer --- */
+.idle__footer {
+  margin-top: var(--space-16);
+  flex-shrink: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.idle__footer-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.idle__footer-links a {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-decoration: none;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
+}
+
+.idle__footer-links a:hover {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
+.idle__footer-sep {
+  color: var(--color-text-tertiary);
+  opacity: 0.3;
+  font-size: 0.7rem;
+}
+
+.idle__footer-copy {
+  font-size: 0.7rem;
+  color: var(--color-text-tertiary);
+  opacity: 0.4;
 }
 
 /* --- Daily Banner --- */
@@ -173,7 +324,7 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all var(--transition-fast);
-  box-shadow: 0 2px 4px rgba(184, 134, 11, 0.1);
+  box-shadow: 0 2px 4px rgba(101, 78, 50, 0.1);
 }
 
 .daily-banner__share:hover {
@@ -185,20 +336,41 @@
   transform: scale(0.9);
 }
 
-/* --- Language Toggle --- */
-.lang-toggle {
+/* --- Top Controls --- */
+.top-controls {
   position: fixed;
   top: var(--space-20);
   right: var(--space-20);
   z-index: var(--z-overlay);
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+.control-btn, .lang-toggle {
   background: var(--color-surface);
+  border: 1.5px solid rgba(139, 119, 90, 0.15);
   border-radius: var(--radius-12);
   color: var(--color-text-secondary);
   font-size: 0.85rem;
   font-weight: 700;
-  padding: 8px 14px;
+  padding: 8px 12px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.control-btn:hover, .lang-toggle:hover {
+  background: var(--color-surface-secondary);
+  transform: translateY(-1px);
+}
+
+.control-btn:active, .lang-toggle:active {
+  transform: scale(0.95);
 }
 
 /* ========== GAME Layer ========== */
@@ -290,14 +462,18 @@
 
 .history-card__tokens {
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-8);
   margin-bottom: var(--space-16);
-  flex-wrap: wrap;
 }
 
 .history-card__tokens .collected-chip {
-  padding: 4px 10px;
-  font-size: 0.8rem;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  width: auto;
+  max-width: 100%;
+  justify-content: flex-start;
 }
 
 .history-card__combo {
@@ -367,7 +543,6 @@
   position: relative;
   overflow: hidden;
 }
-
 
 .complete__card::before {
   content: '';

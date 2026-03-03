@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Nova Pouch - 차원의 주머니에서 발견한 파편으로 세계를 기록하세요">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline'; font-src https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.jiun.dev">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.googletagservices.com; style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline'; font-src https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: blob: https://www.google-analytics.com https://pagead2.googlesyndication.com; connect-src 'self' https://api.jiun.dev https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://pagead2.googlesyndication.com; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com">
   <meta name="theme-color" content="#F5EDE0">
   <meta property="og:title" content="Nova Pouch">
   <meta property="og:description" content="차원의 주머니에서 발견한 파편으로 세계를 기록하세요">
@@ -12,6 +12,13 @@
   <link rel="icon" type="image/png" href="assets/images/logo-app-icon.png">
   <link rel="apple-touch-icon" href="assets/images/logo-app-icon.png">
   <title>Nova Pouch</title>
+
+  <!-- AdSense (injected at build time) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=__ADSENSE_CLIENT__" crossorigin="anonymous"></script>
+
+  <!-- Google Analytics (injected at build time) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=__GTAG_ID__"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','__GTAG_ID__');</script>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -36,7 +43,12 @@
 <body>
   <a href="#main-content" class="sr-only skip-link">Skip to main content</a>
   <div id="app">
-    <button id="btn-lang-toggle" class="lang-toggle" data-i18n="lang.toggle">EN</button>
+    <!-- Controls (Top Right) -->
+    <div class="top-controls">
+      <button id="btn-theme-toggle" class="control-btn" title="테마 변경">🎨</button>
+      <button id="btn-lang-toggle" class="lang-toggle" data-i18n="lang.toggle">한국어</button>
+    </div>
+
     <main id="main-content">
 
     <!-- ========== Layer: IDLE ========== -->
@@ -103,6 +115,26 @@
         <button id="btn-debug-flush" class="btn btn--ghost btn-debug" style="margin-top: auto; opacity: 0.3; font-size: 0.8rem;">
           [DEBUG] Reset All Data
         </button>
+
+        <!-- Ad: Idle -->
+        <div class="ad-container" id="ad-idle">
+          <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="__ADSENSE_CLIENT__"
+            data-ad-slot="__ADSENSE_SLOT_IDLE__"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+
+        <footer class="idle__footer">
+          <div class="idle__footer-links">
+            <a href="https://github.com/jiunbae/nova-pouch/issues" target="_blank" rel="noopener noreferrer" data-i18n="footer.feedback">의견 보내기</a>
+            <span class="idle__footer-sep" aria-hidden="true">·</span>
+            <a href="https://github.com/jiunbae/nova-pouch" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+          <p class="idle__footer-copy">Built with curiosity and imagination</p>
+        </footer>
       </div>
     </section>
 
@@ -267,6 +299,17 @@
                 <button class="share-panel__btn btn btn--secondary" data-action="copy-result">
                   <span data-i18n="share.copyResult">결과 복사</span>
                 </button>
+              </div>
+
+              <!-- Ad: Complete -->
+              <div class="ad-container" id="ad-complete">
+                <ins class="adsbygoogle"
+                  style="display:block"
+                  data-ad-client="__ADSENSE_CLIENT__"
+                  data-ad-slot="__ADSENSE_SLOT_COMPLETE__"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
               </div>
 
                 <div class="step__actions btn-group">

@@ -2,15 +2,6 @@
    pouch.css — Pouch Styles & Animations (Board Game Theme)
    ============================================================ */
 
-/* --- Pouch Row Layout --- */
-.pouch-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-lg);
-  flex-wrap: wrap;
-}
-
 /* --- Individual Pouch --- */
 .pouch {
   position: relative;
@@ -28,10 +19,21 @@
   animation: pouch-idle 3s ease-in-out infinite;
   overflow: hidden;
 
-  /* Modern Material Feel */
+  /* Default Material */
   background: var(--color-surface);
   box-shadow: 0 12px 24px rgba(101, 78, 50, 0.15);
   border: 2px solid rgba(139, 119, 90, 0.2);
+}
+
+[data-theme="sci-fi"] .pouch {
+  border-radius: 4px;
+  border: 1px solid var(--color-primary);
+  clip-path: polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%);
+}
+
+[data-theme="fantasy"] .pouch {
+  border-radius: 50% 50% 40% 40%;
+  border: 3px solid var(--color-primary-dark);
 }
 
 .pouch:hover {
@@ -39,11 +41,15 @@
   box-shadow: 0 24px 48px rgba(101, 78, 50, 0.2);
 }
 
+[data-theme="sci-fi"] .pouch:hover {
+  box-shadow: 0 0 30px var(--color-primary-soft);
+}
+
 .pouch:active {
   transform: scale(0.96);
 }
 
-/* Pouch Pattern (Simplified for modern look) */
+/* Pouch Pattern */
 .pouch__pattern {
   position: absolute;
   top: 0;
@@ -60,6 +66,15 @@
   background: linear-gradient(160deg, #FCEAE8, #F5D3CF);
   border-color: rgba(192, 57, 43, 0.3);
 }
+[data-theme="sci-fi"] .pouch--red {
+  background: linear-gradient(160deg, #1e1b1b, #450a0a);
+  border-color: #f43f5e;
+}
+[data-theme="fantasy"] .pouch--red {
+  background: linear-gradient(160deg, #4a0404, #2d0202);
+  border-color: #8b0000;
+}
+
 .pouch--red .pouch__pattern {
   background-image: radial-gradient(circle, var(--color-red) 1.5px, transparent 1.5px);
   background-size: 12px 12px;
@@ -70,6 +85,15 @@
   background: linear-gradient(160deg, #E8F0F8, #CDE0F2);
   border-color: rgba(36, 113, 163, 0.3);
 }
+[data-theme="sci-fi"] .pouch--blue {
+  background: linear-gradient(160deg, #082f49, #0c4a6e);
+  border-color: #38bdf8;
+}
+[data-theme="fantasy"] .pouch--blue {
+  background: linear-gradient(160deg, #000050, #000030);
+  border-color: #000080;
+}
+
 .pouch--blue .pouch__pattern {
   background-image: repeating-linear-gradient(45deg, var(--color-blue) 0, var(--color-blue) 1.5px, transparent 1.5px, transparent 8px);
 }
@@ -79,6 +103,15 @@
   background: linear-gradient(160deg, #E8F5EE, #CEE8D9);
   border-color: rgba(30, 132, 73, 0.3);
 }
+[data-theme="sci-fi"] .pouch--green {
+  background: linear-gradient(160deg, #064e3b, #065f46);
+  border-color: #10b981;
+}
+[data-theme="fantasy"] .pouch--green {
+  background: linear-gradient(160deg, #003000, #002000);
+  border-color: #006400;
+}
+
 .pouch--green .pouch__pattern {
   background-image: linear-gradient(var(--color-green) 1px, transparent 1px), linear-gradient(90deg, var(--color-green) 1px, transparent 1px);
   background-size: 14px 14px;
@@ -102,10 +135,31 @@
   box-shadow: 0 2px 6px rgba(101, 78, 50, 0.1);
   font-size: 0.9rem;
   font-weight: 700;
-  animation: chip-appear 0.5s var(--ease-toss);
   border: 1px solid rgba(139, 119, 90, 0.15);
   position: relative;
   overflow: hidden;
+  transition: all var(--transition-normal);
+  width: auto;
+  max-width: 100%;
+  justify-content: flex-start;
+}
+
+/* Only animate when appearing in the drawing flow */
+.drawing__collected .collected-chip,
+.collected-stack .collected-chip {
+  animation: chip-appear 0.5s var(--ease-toss);
+}
+
+[data-theme="sci-fi"] .collected-chip {
+  background: #1e293b;
+  border-color: var(--color-primary-dark);
+  border-radius: 2px;
+}
+
+[data-theme="fantasy"] .collected-chip {
+  background: #eee8d5;
+  border: 2px solid var(--color-primary);
+  border-radius: 8px;
 }
 
 .collected-chip::before {
@@ -119,19 +173,18 @@
   opacity: 0.8;
 }
 
-.collected-chip--red { color: var(--color-red); background: linear-gradient(135deg, #FFFFFF, #FFF0F1); }
-.collected-chip--blue { color: var(--color-blue); background: linear-gradient(135deg, #FFFFFF, #F0F7FF); }
-.collected-chip--green { color: var(--color-green); background: linear-gradient(135deg, #FFFFFF, #F0FFF9); }
+.collected-chip--red { color: var(--color-red); }
+.collected-chip--blue { color: var(--color-blue); }
+.collected-chip--green { color: var(--color-green); }
 
 .collected-chip__emoji {
   font-size: 1.2rem;
   line-height: 1;
 }
 
-
 .collected-chip__label {
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--color-text-primary);
 }
 
 @keyframes chip-appear {
@@ -143,4 +196,9 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+@keyframes pouch-idle {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-5px) rotate(1deg); }
 }

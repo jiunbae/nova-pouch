@@ -162,6 +162,9 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'complete.submitted':   '커뮤니티에 공유되었습니다',
     'complete.submitFailed':'공유에 실패했습니다 (로컬에 저장됨)',
 
+    // Footer
+    'footer.feedback':      '의견 보내기',
+
     // Lang toggle
     'lang.toggle':          'EN',
   },
@@ -314,6 +317,9 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     // Complete additions
     'complete.submitted':   'Shared with the community',
     'complete.submitFailed':'Share failed (saved locally)',
+
+    // Footer
+    'footer.feedback':      'Send Feedback',
 
     // Lang toggle
     'lang.toggle':          '한국어',

@@ -64,6 +64,17 @@ npm run typecheck   # type-check only
 npm test           # build + Playwright E2E
 ```
 
+## Theme Item Assets
+
+`item-key`, `item-compass` 아이템은 테마별 PNG를 생성해서 사용합니다.
+
+```bash
+npm run generate:theme-assets
+```
+
+- Azure GPT Image 키 기본 경로: `~/keys/openai.azure.com/gpt-image-1.5.json`
+- 출력 경로: `assets/images/themes/`
+
 ## Project Structure
 
 ```
