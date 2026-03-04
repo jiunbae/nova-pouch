@@ -99,6 +99,19 @@
   margin-bottom: var(--space-8);
 }
 
+/* --- Date Group Header (preset view) --- */
+.feed-date-group__header {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+  padding: var(--space-16) 0 var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.feed-list .feed-daily-tokens {
+  margin-bottom: var(--space-12);
+}
+
 /* --- Feed List --- */
 .feed-list {
   display: flex;

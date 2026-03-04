@@ -17,7 +17,7 @@ import {
 import { startCountdown, stopCountdown } from './countdown';
 import { downloadShareCard, shareToTwitter, nativeShare, buildCompactShare } from './share';
 import { submitRecord } from './feed';
-import type { GameStateSnapshot, HistoryData, HistorySession, FeedState, DailyCompletion, Token, PouchColor } from './types';
+import type { GameStateSnapshot, HistoryData, HistorySession, FeedState, FeedRecord, DailyCompletion, Token, PouchColor } from './types';
 
 const MIN_STORY_LENGTH = 50;
 const MAX_STORY_LENGTH = 2000;
@@ -570,6 +570,53 @@ function renderSharedTokens(feedState: FeedState): void {
   }
 }
 
+function buildFeedCard(record: FeedRecord, feedState: FeedState): HTMLElement {
+  const card = document.createElement('article');
+  card.className = 'feed-card';
+  card.dataset.recordId = record.id;
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+
+  card.addEventListener('click', () => {
+    const feedLayer = document.getElementById('layer-feed');
+    if (feedLayer) closeOverlay(feedLayer);
+    dispatchAction('VIEW_RECORD_DETAIL', {
+      session: { tokens: record.tokens, userStory: record.story, id: record.id },
+    });
+  });
+
+  const authorName = escapeHtml(record.user?.displayName || record.anonName || t('feed.anonymous'));
+  const likeHtml = record.source === 'preset'
+    ? ''
+    : `<button class="feed-card__like ${feedState.likedIds?.has(record.id) ? 'is-liked' : ''}" data-record-id="${escapeHtml(record.id)}" aria-pressed="${feedState.likedIds?.has(record.id) ? 'true' : 'false'}">
+        <span class="like-icon">${feedState.likedIds?.has(record.id) ? '❤️' : '🤍'}</span>
+        <span class="like-count">${record.likeCount || 0}</span>
+      </button>`;
+
+  card.innerHTML = `
+    <div class="feed-card__header">
+      <div class="feed-card__author">${authorName}</div>
+    </div>
+    <div class="feed-card__story">${escapeHtml(record.story || '')}</div>
+    <div class="feed-card__actions">
+      ${likeHtml}
+    </div>
+  `;
+
+  const likeBtn = card.querySelector('.feed-card__like') as HTMLElement | null;
+  if (likeBtn) {
+    likeBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const { toggleLike } = await import('./feed');
+      toggleLike(record.id, likeBtn);
+      const icon = likeBtn.querySelector('.like-icon');
+      if (icon) icon.textContent = likeBtn.classList.contains('is-liked') ? '❤️' : '🤍';
+    });
+  }
+
+  return card;
+}
+
 function renderFeedCards(feedState: FeedState): void {
   const listEl = document.getElementById('feed-list');
   const moreBtn = document.getElementById('btn-feed-more');
@@ -596,65 +643,58 @@ function renderFeedCards(feedState: FeedState): void {
     return;
   }
 
-  // Show shared daily tokens once at the top
-  renderSharedTokens(feedState);
+  if (feedState.date === 'preset') {
+    // Preset view: group records by date, show tokens per group
+    const container = document.getElementById('feed-daily-tokens');
+    if (container) container.setAttribute('hidden', '');
 
-  if (feedState.page === 1) listEl.innerHTML = '';
-
-  feedState.records.forEach(record => {
-    // Avoid duplicates if already in DOM (for load more)
-    if (listEl.querySelector(`[data-record-id="${CSS.escape(record.id)}"]`)) return;
-
-    const card = document.createElement('article');
-    card.className = 'feed-card';
-    card.dataset.recordId = record.id;
-    card.setAttribute('role', 'button');
-    card.setAttribute('tabindex', '0');
-
-    card.addEventListener('click', () => {
-      const feedLayer = document.getElementById('layer-feed');
-      if (feedLayer) closeOverlay(feedLayer);
-
-      const session = {
-        tokens: record.tokens,
-        userStory: record.story,
-        id: record.id,
-      };
-      dispatchAction('VIEW_RECORD_DETAIL', { session });
-    });
-
-    const authorName = escapeHtml(record.user?.displayName || record.anonName || t('feed.anonymous'));
-    const likeHtml = record.source === 'preset'
-      ? ''
-      : `<button class="feed-card__like ${feedState.likedIds?.has(record.id) ? 'is-liked' : ''}" data-record-id="${escapeHtml(record.id)}" aria-pressed="${feedState.likedIds?.has(record.id) ? 'true' : 'false'}">
-          <span class="like-icon">${feedState.likedIds?.has(record.id) ? '❤️' : '🤍'}</span>
-          <span class="like-count">${record.likeCount || 0}</span>
-        </button>`;
-
-    card.innerHTML = `
-      <div class="feed-card__header">
-        <div class="feed-card__author">${authorName}</div>
-      </div>
-      <div class="feed-card__story">${escapeHtml(record.story || '')}</div>
-      <div class="feed-card__actions">
-        ${likeHtml}
-      </div>
-    `;
-
-    // Bind like button
-    const likeBtn = card.querySelector('.feed-card__like') as HTMLElement | null;
-    if (likeBtn) {
-      likeBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const { toggleLike } = await import('./feed');
-        toggleLike(record.id, likeBtn);
-        const icon = likeBtn.querySelector('.like-icon');
-        if (icon) icon.textContent = likeBtn.classList.contains('is-liked') ? '❤️' : '🤍';
-      });
+    listEl.innerHTML = '';
+    const grouped = new Map<string, typeof feedState.records>();
+    for (const record of feedState.records) {
+      const d = record.date || '';
+      if (!grouped.has(d)) grouped.set(d, []);
+      grouped.get(d)!.push(record);
     }
 
-    listEl.appendChild(card);
-  });
+    for (const [date, records] of grouped) {
+      // Date header
+      const header = document.createElement('div');
+      header.className = 'feed-date-group__header';
+      const dateObj = new Date(date + 'T00:00:00');
+      const dayNames = getLocale() === 'en'
+        ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        : ['일', '월', '화', '수', '목', '금', '토'];
+      const label = `${dateObj.getMonth() + 1}/${dateObj.getDate()} (${dayNames[dateObj.getDay()]})`;
+      header.textContent = label;
+      listEl.appendChild(header);
+
+      // Token chips for this date group
+      const firstWithTokens = records.find(r => r.tokens && (r.tokens.red || r.tokens.blue || r.tokens.green));
+      if (firstWithTokens) {
+        const tokenGroup = document.createElement('div');
+        tokenGroup.className = 'feed-daily-tokens';
+        const tokens = firstWithTokens.tokens || {};
+        if (tokens.red?.label) tokenGroup.innerHTML += `<span class="collected-chip collected-chip--red">${escapeHtml(tokens.red.emoji || '')} ${escapeHtml(tokens.red.label)}</span>`;
+        if (tokens.blue?.label) tokenGroup.innerHTML += `<span class="collected-chip collected-chip--blue">${escapeHtml(tokens.blue.emoji || '')} ${escapeHtml(tokens.blue.label)}</span>`;
+        if (tokens.green?.label) tokenGroup.innerHTML += `<span class="collected-chip collected-chip--green">${escapeHtml(tokens.green.emoji || '')} ${escapeHtml(tokens.green.label)}</span>`;
+        listEl.appendChild(tokenGroup);
+      }
+
+      // Cards for this date
+      for (const record of records) {
+        listEl.appendChild(buildFeedCard(record, feedState));
+      }
+    }
+  } else {
+    // Regular view: shared tokens at top, flat card list
+    renderSharedTokens(feedState);
+    if (feedState.page === 1) listEl.innerHTML = '';
+
+    feedState.records.forEach(record => {
+      if (listEl.querySelector(`[data-record-id="${CSS.escape(record.id)}"]`)) return;
+      listEl.appendChild(buildFeedCard(record, feedState));
+    });
+  }
 
   if (moreBtn) {
     if (feedState.page < feedState.totalPages) {
