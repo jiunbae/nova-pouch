@@ -43,11 +43,19 @@
 <body>
   <a href="#main-content" class="sr-only skip-link">Skip to main content</a>
   <div id="app">
-    <!-- Controls (Top Right) -->
-    <div class="top-controls">
-      <button id="btn-theme-toggle" class="control-btn" title="테마 변경">🎨</button>
-      <button id="btn-lang-toggle" class="lang-toggle" data-i18n="lang.toggle">한국어</button>
-    </div>
+    <!-- Global Navigation Bar -->
+    <nav class="app-navbar">
+      <div class="navbar__inner">
+        <div id="btn-home" class="navbar__brand" role="button" tabindex="0" aria-label="홈으로 이동">
+          <img src="assets/images/logo-app-icon.png" width="24" height="24" alt="" class="navbar__logo">
+          <span class="navbar__title">Nova Pouch</span>
+        </div>
+        <div class="navbar__controls">
+          <button id="btn-theme-toggle" class="control-btn" title="테마 변경">🎨</button>
+          <button id="btn-lang-toggle" class="lang-toggle" data-i18n="lang.toggle">한국어</button>
+        </div>
+      </div>
+    </nav>
 
     <main id="main-content">
 

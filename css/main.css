@@ -66,58 +66,46 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* --- Theme: Sci-Fi (Nova Tech) --- 
-   Dark navy base, neon accents, high contrast digital feel */
+/* --- Theme: Sci-Fi (Nova Tech) --- */
 [data-theme="sci-fi"] {
   --color-bg: #020617;
   --color-surface: #0f172a;
   --color-surface-secondary: #1e293b;
-  
   --color-primary: #38bdf8;
   --color-primary-soft: rgba(56, 189, 248, 0.1);
   --color-primary-dark: #0ea5e9;
-  
   --color-red: #f43f5e;
   --color-blue: #38bdf8;
   --color-green: #10b981;
-  
   --color-text-primary: #f8fafc;
   --color-text-secondary: #94a3b8;
   --color-text-tertiary: #64748b;
   --color-text-on-primary: #020617;
-
   --card-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
   --card-shadow-elevated: 0 0 40px rgba(56, 189, 248, 0.25);
-  
   --font-ui: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
   --radius-16: 4px;
   --radius-20: 4px;
   --radius-24: 4px;
 }
 
-/* --- Theme: Antique Fantasy (Old Quest) --- 
-   Light parchment base with deep ink black text for maximum readability */
+/* --- Theme: Antique Fantasy (Old Quest) --- */
 [data-theme="fantasy"] {
-  --color-bg: #EADCB4; /* Lighter background */
+  --color-bg: #EADCB4; 
   --color-surface: #FFFDFA; 
   --color-surface-secondary: #DFCE9F;
-  
   --color-primary: #4E2A08;
   --color-primary-soft: rgba(78, 42, 8, 0.1);
   --color-primary-dark: #2D1B0E;
-  
   --color-red: #8B0000;
   --color-blue: #000080;
   --color-green: #004B00;
-  
-  --color-text-primary: #1A0F0A; /* Deep ink black */
+  --color-text-primary: #1A0F0A; 
   --color-text-secondary: #3E2723;
   --color-text-tertiary: #5D4037;
   --color-text-on-primary: #FFFDFA;
-
   --card-shadow: 0 4px 20px rgba(78, 42, 8, 0.2);
   --card-shadow-elevated: 0 20px 50px rgba(78, 42, 8, 0.3);
-  
   --font-ui: 'Nanum Myeongjo', serif;
   --font-narrative: 'Nanum Myeongjo', serif;
   --radius-16: 8px;
@@ -126,15 +114,12 @@
 }
 
 [data-theme="fantasy"] body {
-  font-weight: 600; /* Bolden everything slightly */
-  line-height: 1.8; /* More vertical breathing room */
-  letter-spacing: 0.03em; /* Prevent serif letters from merging */
+  font-weight: 600;
+  line-height: 1.8;
+  letter-spacing: 0.03em;
 }
 
-[data-theme="fantasy"] .btn {
-  font-weight: 800;
-  border: 2px solid var(--color-primary);
-}
+[data-theme="fantasy"] .btn { font-weight: 800; border: 2px solid var(--color-primary); }
 
 /* --- CSS Reset --- */
 *, *::before, *::after {
@@ -186,7 +171,57 @@ ul, ol { list-style: none; }
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  background-color: var(--color-bg);
   overflow: hidden;
+}
+
+/* --- App Navbar --- */
+.app-navbar {
+  flex-shrink: 0;
+  height: calc(56px + var(--safe-top));
+  padding-top: var(--safe-top);
+  background: var(--color-surface);
+  border-bottom: 1.5px solid rgba(139, 119, 90, 0.1);
+  z-index: var(--z-sticky);
+  transition: background-color var(--transition-normal);
+}
+
+.navbar__inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-20);
+}
+
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.navbar__brand:active { opacity: 0.7; }
+.navbar__logo { border-radius: 6px; }
+.navbar__title { font-size: 1rem; font-weight: 900; color: var(--color-text-primary); letter-spacing: -0.02em; }
+.navbar__controls { display: flex; gap: 6px; align-items: center; }
+
+.control-btn, .lang-toggle {
+  background: var(--color-bg);
+  border: 1px solid rgba(139, 119, 90, 0.15);
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 6px 10px;
+  min-height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
 }
 
 #main-content {
@@ -195,6 +230,7 @@ ul, ol { list-style: none; }
   display: flex;
   flex-direction: column;
   min-height: 0;
+  position: relative;
 }
 
 /* --- Layer Base --- */
@@ -232,7 +268,10 @@ ul, ol { list-style: none; }
   margin: 0 auto;
   gap: var(--space-32);
   flex: 1;
-  padding: 0 var(--space-20);
+  padding: var(--space-24) var(--space-20);
+  padding-bottom: calc(var(--safe-bottom) + var(--space-48));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* --- Buttons --- */
@@ -253,34 +292,13 @@ ul, ol { list-style: none; }
 }
 
 .btn:active { transform: scale(0.96); filter: brightness(0.95); }
-
-.btn--primary {
-  background-color: var(--color-primary);
-  color: var(--color-text-on-primary);
-}
-
-.btn--primary:disabled {
-  background-color: var(--color-surface-secondary);
-  color: var(--color-text-tertiary);
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn--secondary {
-  background-color: var(--color-surface);
-  color: var(--color-primary);
-  border-color: var(--color-primary-soft);
-}
-
-.btn--ghost {
-  background-color: transparent;
-  color: var(--color-text-secondary);
-}
-
+.btn--primary { background-color: var(--color-primary); color: var(--color-text-on-primary); }
+.btn--primary:disabled { background-color: var(--color-surface-secondary); color: var(--color-text-tertiary); cursor: not-allowed; }
+.btn--secondary { background-color: var(--color-surface); color: var(--color-primary); border-color: var(--color-primary-soft); }
+.btn--ghost { background-color: transparent; color: var(--color-text-secondary); }
 .btn--pouch-red { background-color: var(--color-red); color: #FFFFFF; }
 .btn--pouch-blue { background-color: var(--color-blue); color: #FFFFFF; }
 .btn--pouch-green { background-color: var(--color-green); color: #FFFFFF; }
-
 .btn--full { width: 100%; }
 .btn-group { display: flex; flex-direction: column; gap: var(--space-12); width: 100%; }
 
@@ -294,14 +312,8 @@ ul, ol { list-style: none; }
   transition: all var(--transition-normal);
 }
 
-[data-theme="sci-fi"] .card, [data-theme="sci-fi"] .glass-card {
-  border-color: var(--color-primary-dark);
-  box-shadow: 0 0 20px var(--color-primary-soft);
-}
-
-[data-theme="fantasy"] .card, [data-theme="fantasy"] .glass-card {
-  border: 3px double var(--color-primary-dark);
-}
+[data-theme="sci-fi"] .card, [data-theme="sci-fi"] .glass-card { border-color: var(--color-primary-dark); box-shadow: 0 0 20px var(--color-primary-soft); }
+[data-theme="fantasy"] .card, [data-theme="fantasy"] .glass-card { border: 3px double var(--color-primary-dark); }
 
 /* --- Form Elements --- */
 .form-textarea {
@@ -320,18 +332,8 @@ ul, ol { list-style: none; }
   border: 2.5px solid transparent;
 }
 
-.form-textarea:focus {
-  background: var(--color-surface);
-  border-color: var(--color-primary);
-}
-
-.form-char-count {
-  text-align: right;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--color-text-tertiary);
-  margin-top: var(--space-8);
-}
+.form-textarea:focus { background: var(--color-surface); border-color: var(--color-primary); }
+.form-char-count { text-align: right; font-size: 0.85rem; font-weight: 700; color: var(--color-text-tertiary); margin-top: var(--space-8); }
 
 /* --- Scrollbar --- */
 ::-webkit-scrollbar { width: 6px; }
