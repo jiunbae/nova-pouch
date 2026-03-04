@@ -2,24 +2,7 @@
    feed.css — Community Feed Overlay
    ============================================================ */
 
-/* --- Feed Overlay --- */
-#layer-feed {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-overlay);
-  background: var(--color-bg);
-  transform: translateY(100%);
-  transition: transform var(--transition-normal) var(--ease-toss);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: var(--space-24) var(--space-20);
-  padding-top: calc(var(--safe-top) + var(--space-24));
-  padding-bottom: calc(var(--safe-bottom) + var(--space-24));
-}
-
-#layer-feed.layer--active {
-  transform: translateY(0);
-}
+/* --- Feed Overlay (inherits from .layer--overlay) --- */
 
 /* --- Feed Header --- */
 .feed-header {
@@ -88,6 +71,15 @@
 .feed-date-chip__date {
   font-size: 0.85rem;
   font-weight: 800;
+}
+
+/* --- Daily Tokens (shared for all cards on a date) --- */
+.feed-daily-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  padding: var(--space-12) 0;
+  margin-bottom: var(--space-8);
 }
 
 /* --- Feed List --- */

@@ -294,10 +294,24 @@ function bindLangToggle(): void {
 const THEMES = ['default', 'sci-fi', 'fantasy'] as const;
 type Theme = (typeof THEMES)[number];
 
+const THEME_COLORS: Record<string, string> = {
+  'default': '#FFFCF5',
+  'sci-fi': '#0f172a',
+  'fantasy': '#FFFDFA',
+};
+
+function updateThemeColor(theme: string): void {
+  const meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+  if (meta) {
+    meta.content = THEME_COLORS[theme] || THEME_COLORS['default'];
+  }
+}
+
 function initTheme(): void {
   const saved = localStorage.getItem('nova-pouch-theme') as Theme | null;
   if (saved && THEMES.includes(saved)) {
     document.body.dataset.theme = saved;
+    updateThemeColor(saved);
   }
 }
 
@@ -308,10 +322,11 @@ function bindThemeToggle(): void {
     const current = (document.body.dataset.theme || 'default') as Theme;
     const nextIdx = (THEMES.indexOf(current) + 1) % THEMES.length;
     const next = THEMES[nextIdx];
-    
+
     document.body.dataset.theme = next;
     localStorage.setItem('nova-pouch-theme', next);
-    
+    updateThemeColor(next);
+
     // Feedback
     if (navigator.vibrate) navigator.vibrate(5);
   });
@@ -492,6 +507,31 @@ function bindFeedButtons(): void {
   });
 }
 
+function renderSharedTokens(feedState: FeedState): void {
+  const container = document.getElementById('feed-daily-tokens');
+  if (!container) return;
+
+  // Extract tokens from the first record that has them
+  const firstWithTokens = feedState.records?.find(r => r.tokens && (r.tokens.red || r.tokens.blue || r.tokens.green));
+  if (!firstWithTokens) {
+    container.setAttribute('hidden', '');
+    return;
+  }
+
+  const tokens = firstWithTokens.tokens || {};
+  const chips: string[] = [];
+  if (tokens.red?.label) chips.push(`<span class="collected-chip collected-chip--red">${escapeHtml(tokens.red.emoji || '')} ${escapeHtml(tokens.red.label)}</span>`);
+  if (tokens.blue?.label) chips.push(`<span class="collected-chip collected-chip--blue">${escapeHtml(tokens.blue.emoji || '')} ${escapeHtml(tokens.blue.label)}</span>`);
+  if (tokens.green?.label) chips.push(`<span class="collected-chip collected-chip--green">${escapeHtml(tokens.green.emoji || '')} ${escapeHtml(tokens.green.label)}</span>`);
+
+  if (chips.length > 0) {
+    container.innerHTML = chips.join('');
+    container.removeAttribute('hidden');
+  } else {
+    container.setAttribute('hidden', '');
+  }
+}
+
 function renderFeedCards(feedState: FeedState): void {
   const listEl = document.getElementById('feed-list');
   const moreBtn = document.getElementById('btn-feed-more');
@@ -514,11 +554,15 @@ function renderFeedCards(feedState: FeedState): void {
   if (!feedState.records || feedState.records.length === 0) {
     listEl.innerHTML = `<div class="feed-empty"><div class="feed-empty__icon">📜</div><p>${t('feed.empty')}</p></div>`;
     if (moreBtn) moreBtn.setAttribute('hidden', '');
+    renderSharedTokens(feedState);
     return;
   }
 
+  // Show shared daily tokens once at the top
+  renderSharedTokens(feedState);
+
   if (feedState.page === 1) listEl.innerHTML = '';
-  
+
   feedState.records.forEach(record => {
     // Avoid duplicates if already in DOM (for load more)
     if (listEl.querySelector(`[data-record-id="${CSS.escape(record.id)}"]`)) return;
@@ -532,8 +576,7 @@ function renderFeedCards(feedState: FeedState): void {
     card.addEventListener('click', () => {
       const feedLayer = document.getElementById('layer-feed');
       if (feedLayer) closeOverlay(feedLayer);
-      
-      // Adapt FeedRecord to look enough like HistorySession for the detail view
+
       const session = {
         tokens: record.tokens,
         userStory: record.story,
@@ -542,13 +585,7 @@ function renderFeedCards(feedState: FeedState): void {
       dispatchAction('VIEW_RECORD_DETAIL', { session });
     });
 
-    const tokens = record.tokens || {};
     const authorName = escapeHtml(record.user?.displayName || record.anonName || t('feed.anonymous'));
-    const displayDate = record.date || '';
-
-    const redChip = tokens.red?.label ? `<span class="collected-chip collected-chip--red">${escapeHtml(tokens.red.emoji || '')} ${escapeHtml(tokens.red.label)}</span>` : '';
-    const blueChip = tokens.blue?.label ? `<span class="collected-chip collected-chip--blue">${escapeHtml(tokens.blue.emoji || '')} ${escapeHtml(tokens.blue.label)}</span>` : '';
-    const greenChip = tokens.green?.label ? `<span class="collected-chip collected-chip--green">${escapeHtml(tokens.green.emoji || '')} ${escapeHtml(tokens.green.label)}</span>` : '';
     const likeHtml = record.source === 'preset'
       ? ''
       : `<button class="feed-card__like ${feedState.likedIds?.has(record.id) ? 'is-liked' : ''}" data-record-id="${escapeHtml(record.id)}" aria-pressed="${feedState.likedIds?.has(record.id) ? 'true' : 'false'}">
@@ -559,10 +596,6 @@ function renderFeedCards(feedState: FeedState): void {
     card.innerHTML = `
       <div class="feed-card__header">
         <div class="feed-card__author">${authorName}</div>
-        <div class="feed-card__date">${displayDate}</div>
-      </div>
-      <div class="feed-card__tokens">
-        ${redChip}${blueChip}${greenChip}
       </div>
       <div class="feed-card__story">${escapeHtml(record.story || '')}</div>
       <div class="feed-card__actions">
@@ -577,7 +610,6 @@ function renderFeedCards(feedState: FeedState): void {
         e.stopPropagation();
         const { toggleLike } = await import('./feed');
         toggleLike(record.id, likeBtn);
-        // Update emoji immediately for snappy feel
         const icon = likeBtn.querySelector('.like-icon');
         if (icon) icon.textContent = likeBtn.classList.contains('is-liked') ? '❤️' : '🤍';
       });
