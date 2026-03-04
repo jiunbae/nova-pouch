@@ -25,10 +25,12 @@
 }
 
 #layer-idle {
-  background-image: 
+  background-image:
     radial-gradient(circle at 10% 20%, rgba(184, 134, 11, 0.05) 0%, transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(192, 57, 43, 0.03) 0%, transparent 40%);
-  position: relative;
+  /* position: absolute is inherited from .layer — needed for proper layout.
+     ::before/::after pseudo-elements still position relative to this element
+     since position: absolute also establishes a containing block. */
 }
 
 #layer-idle::before,
