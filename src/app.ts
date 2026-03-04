@@ -491,7 +491,7 @@ function buildDatePicker(): void {
   presetChip.dataset.date = PRESET_DATE_KEY;
   presetChip.setAttribute('role', 'tab');
   presetChip.setAttribute('aria-selected', isPresetActive ? 'true' : 'false');
-  presetChip.innerHTML = `<span class="feed-date-chip__day">${getLocale() === 'en' ? 'Book' : '원작'}</span><span class="feed-date-chip__date">📖</span>`;
+  presetChip.innerHTML = `<span class="feed-date-chip__day">${getLocale() === 'en' ? 'Green World' : '녹색의 세계'}</span><span class="feed-date-chip__date">📖</span>`;
 
   presetChip.addEventListener('click', () => selectFeedDate(PRESET_DATE_KEY));
   picker.appendChild(presetChip);
