@@ -373,24 +373,24 @@ function updatePostDrawFlow(state: GameStateSnapshot): void {
       setTimeout(() => {
         btnCTA.textContent = t('writing.complete');
         btnCTA.disabled = true; // syncWritingValidation in app.ts will enable when valid
-      }, 150);
+      }, 80);
       setTimeout(() => {
         btnCTA.classList.remove('btn--morphing');
-      }, 300);
+      }, 160);
     }
 
     // Auto-focus textarea after reveal animation (only on phase transition)
     if (dom.inputStory && phaseChanged) {
       setTimeout(() => {
         dom.inputStory?.focus();
-      }, 400);
+      }, 180);
     }
 
     // Scroll inline-writing into view only if needed
     if (writingEl && phaseChanged) {
       setTimeout(() => {
         writingEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 400);
+      }, 180);
     }
   }
 
@@ -481,7 +481,7 @@ function updateVisibility(state: GameStateSnapshot): void {
         if (!historyEl.classList.contains('layer--active')) {
           historyEl.style.display = 'none';
         }
-      }, 500);
+      }, 260);
     }
   }
 }
@@ -498,7 +498,7 @@ function toggleLayer(el: HTMLElement | null, show: boolean): void {
       if (!el.classList.contains('layer--active')) {
         el.style.display = 'none';
       }
-    }, 400);
+    }, 160);
   }
 }
 

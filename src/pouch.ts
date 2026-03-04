@@ -3,9 +3,9 @@ import { getDailyToken } from './daily';
 import { t, getLocale } from './i18n';
 import type { GameStateInstance, GameStateSnapshot, PouchColor, Token } from './types';
 
-const SHAKE_MS = 500;
-const RISE_MS = 800;
-const FLIP_MS = 320;
+const SHAKE_MS = 350;
+const RISE_MS = 450;
+const FLIP_MS = 200;
 let localAnimating = false;
 
 export function initPouch(gameState: GameStateInstance): void {

@@ -71,7 +71,7 @@
   display: flex;
   flex-direction: column;
   opacity: 0;
-  transition: opacity var(--transition-normal);
+  transition: opacity var(--transition-fast);
   pointer-events: none;
   overflow: hidden;
 }
@@ -139,7 +139,7 @@
 }
 
 .step__token-reveal.is-revealed .token-emoji {
-  animation: token-rise 0.8s var(--ease-toss) forwards;
+  animation: token-rise 0.45s var(--ease-toss) forwards;
 }
 
 .step__token-reveal .token-label {
@@ -249,27 +249,27 @@
 .flow-section {
   width: 100%;
   max-width: 480px;
-  transition: all var(--transition-normal) var(--ease-toss);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
   flex-shrink: 0;
   padding: var(--space-12) 0;
-  /* Ensure padding-bottom inside flow-section helps with button spacing */
   padding-bottom: var(--space-32);
 }
 
 .flow-section--collapsed {
-  max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transform: translateY(20px);
+  transform: translateY(12px);
   pointer-events: none;
-  padding: 0;
+  position: absolute;
+  visibility: hidden;
 }
 
 .flow-section--revealed {
-  max-height: 5000px;
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  position: relative;
+  visibility: visible;
 }
 
 /* Review Section Tokens (Vertical stack of rows) */
@@ -326,18 +326,15 @@
 /* Writing Area (flattened) */
 .writing__form {
   width: 100%;
-  transition: all var(--transition-normal) var(--ease-toss);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
   opacity: 0;
-  transform: translateY(12px);
-  max-height: 0;
-  overflow: hidden;
+  transform: translateY(8px);
   margin-top: 0;
 }
 
 .writing__form:not([hidden]) {
   opacity: 1;
   transform: translateY(0);
-  max-height: 1000px;
   margin-top: var(--space-12);
 }
 

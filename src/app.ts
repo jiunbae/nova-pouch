@@ -669,7 +669,7 @@ function showToast(message: string, durationMs = 2000): void {
     setTimeout(() => {
       toast.setAttribute('hidden', '');
       toast.style.display = 'none';
-    }, 400);
+    }, 260);
   }, durationMs);
 }
 
@@ -847,7 +847,7 @@ function closeOverlay(overlayEl: HTMLElement): void {
     if (!overlayEl.classList.contains('layer--active')) {
       overlayEl.style.display = 'none';
     }
-  }, 500);
+  }, 260);
 
   // Restore focus
   if (_lastFocusedElement && typeof (_lastFocusedElement as HTMLElement).focus === 'function') {
