@@ -133,6 +133,14 @@ function dedupeById(records: FeedRecord[]): FeedRecord[] {
   });
 }
 
+function sortByDateDesc(records: FeedRecord[]): FeedRecord[] {
+  return records.sort((a, b) => {
+    const dateA = a.createdAt || a.date || '';
+    const dateB = b.createdAt || b.date || '';
+    return dateB.localeCompare(dateA);
+  });
+}
+
 function mergeFeedState(data: FeedApiResponse, requestedDate: string | null, page: number, sort: string): FeedState {
   const presetRecords = page === 1 ? getPresetFeedRecords(requestedDate) : [];
   const mergedRecords = page === 1
@@ -141,7 +149,7 @@ function mergeFeedState(data: FeedApiResponse, requestedDate: string | null, pag
 
   return {
     date: requestedDate || data.date || null,
-    records: dedupeById(mergedRecords),
+    records: sortByDateDesc(dedupeById(mergedRecords)),
     page: data.page,
     totalPages: data.totalPages,
     total: page === 1 ? data.total + presetRecords.length : _feedState.total,

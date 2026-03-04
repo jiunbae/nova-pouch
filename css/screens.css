@@ -391,7 +391,10 @@
 }
 
 .history__header {
-  margin-bottom: var(--space-24);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-16);
   flex-shrink: 0;
 }
 
@@ -402,18 +405,13 @@
 }
 
 .history__stats {
-  padding: var(--space-12) var(--space-20);
+  padding: 4px 12px;
   background: var(--color-primary-soft);
   border-radius: var(--radius-full);
-  margin-bottom: var(--space-24);
   font-weight: 800;
   color: var(--color-primary);
-  text-align: center;
+  font-size: 0.8rem;
   flex-shrink: 0;
-  font-size: 0.9rem;
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .history-card {

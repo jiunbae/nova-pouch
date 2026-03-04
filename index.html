@@ -335,15 +335,12 @@
     <!-- ========== Layer: HISTORY (overlay) ========== -->
     <section id="layer-history" class="layer layer--overlay" role="dialog" aria-modal="true" aria-label="기록 보관소">
       <div class="layer__inner">
+        <button id="btn-close-history" class="btn btn--ghost btn--back" data-i18n="history.back" data-i18n-aria="aria.close" aria-label="닫기">
+          ← 돌아가기
+        </button>
         <div class="history__header">
-          <button id="btn-close-history" class="btn btn--ghost btn--back" data-i18n="history.back" data-i18n-aria="aria.close" aria-label="닫기">
-            ← 돌아가기
-          </button>
           <h2 class="history__title" data-i18n="history.title">기록 보관소</h2>
-        </div>
-
-        <div class="history__stats" id="history-stats">
-          <span id="stats-total">총 0개의 세계를 기록</span>
+          <span class="history__stats" id="history-stats"><span id="stats-total">0</span></span>
         </div>
 
         <div class="history__list" id="history-list">

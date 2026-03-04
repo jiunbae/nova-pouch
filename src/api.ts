@@ -27,7 +27,7 @@ export async function apiGet(
 
   try {
     const response = await fetch(url.toString(), {
-
+      credentials: 'include',
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
@@ -57,7 +57,7 @@ export async function apiPost(
     const response = await fetch(API_BASE + path, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-
+      credentials: 'include',
       body: JSON.stringify(body),
       signal: controller.signal,
     });
