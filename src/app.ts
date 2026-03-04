@@ -256,15 +256,6 @@ function bindAllButtons(): void {
     dispatchAction('CLOSE_HISTORY');
   });
 
-  // Debug flush — reset all localStorage
-  bindButtons(['#btn-debug-flush'], () => {
-    if (!window.confirm('Reset ALL data? (history, daily completion, locale)')) return;
-    localStorage.removeItem('nova-pouch-history');
-    localStorage.removeItem('nova-pouch-daily-completion');
-    localStorage.removeItem('nova-pouch-locale');
-    window.location.reload();
-  });
-
   // Delete all history
   bindButtons(['[data-action="delete-history"]', '#btn-delete-all'], () => {
     const confirmed = window.confirm(t('confirm.deleteAll'));
