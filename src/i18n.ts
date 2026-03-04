@@ -84,6 +84,8 @@ const STRINGS: Record<Locale, Record<string, string>> = {
 
     // Confirm dialog
     'confirm.deleteAll':    '기록 보관소를 모두 비우시겠습니까?',
+    'confirm.backHome':     '홈으로 돌아가시겠습니까? 진행 중인 기록은 사라질 수 있습니다.',
+
 
     // Share text
     'share.title':          '✦ Nova Pouch 기록 ✦',
@@ -240,6 +242,7 @@ const STRINGS: Record<Locale, Record<string, string>> = {
 
     // Confirm dialog
     'confirm.deleteAll':    'Clear the entire archive?',
+    'confirm.backHome':     'Return to home? Your current progress might be lost.',
 
     // Share text
     'share.title':          '✦ Nova Pouch Record ✦',

@@ -32,6 +32,16 @@ function bootstrap(): void {
 
   initRenderer(gameState, loadHistory);
 
+  // Home button
+  bindButtons(['#btn-home'], () => {
+    const state = gameState.getState();
+    if (state.phase !== 'IDLE' && state.phase !== 'COMPLETE') {
+      if (!confirm(t('confirm.backHome'))) return;
+    }
+    dispatchAction('RESTART');
+    checkDailyState();
+  });
+
   // View record detail from history
   bindButtons(['[data-action="view-record-detail"]'], (event) => {
     // This is handled via state subscription for complex payloads
