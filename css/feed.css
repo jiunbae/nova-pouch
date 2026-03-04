@@ -4,19 +4,7 @@
 
 /* --- Feed Overlay (inherits from .layer--overlay) --- */
 
-/* --- Feed Header --- */
-.feed-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-12);
-  margin-bottom: var(--space-24);
-}
-
-.feed-title {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--color-text-primary);
-}
+/* --- Feed Header (uses shared .overlay-header) --- */
 
 /* --- Date Picker --- */
 .feed-date-picker {

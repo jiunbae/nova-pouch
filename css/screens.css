@@ -390,19 +390,7 @@
   overflow: hidden; /* Fixed header, scrollable list */
 }
 
-.history__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-16);
-  flex-shrink: 0;
-}
-
-.history__title {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--color-text-primary);
-}
+/* --- History Header (uses shared .overlay-header) --- */
 
 .history__stats {
   padding: 4px 12px;

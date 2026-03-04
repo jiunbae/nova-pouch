@@ -335,11 +335,9 @@
     <!-- ========== Layer: HISTORY (overlay) ========== -->
     <section id="layer-history" class="layer layer--overlay" role="dialog" aria-modal="true" aria-label="기록 보관소">
       <div class="layer__inner">
-        <button id="btn-close-history" class="btn btn--ghost btn--back" data-i18n="history.back" data-i18n-aria="aria.close" aria-label="닫기">
-          ← 돌아가기
-        </button>
-        <div class="history__header">
-          <h2 class="history__title" data-i18n="history.title">기록 보관소</h2>
+        <div class="overlay-header">
+          <button id="btn-close-history" class="overlay-header__back" data-i18n-aria="aria.close" aria-label="닫기">←</button>
+          <h2 class="overlay-header__title" data-i18n="history.title">기록 보관소</h2>
           <span class="history__stats" id="history-stats"><span id="stats-total">0</span></span>
         </div>
 
@@ -356,11 +354,9 @@
     <!-- ========== Layer: FEED (overlay) ========== -->
     <section id="layer-feed" class="layer layer--overlay" role="dialog" aria-modal="true" aria-label="다른 세계의 기록">
       <div class="layer__inner">
-        <div class="feed-header">
-          <button id="btn-close-feed" class="btn btn--ghost btn--back" data-i18n="feed.back" aria-label="닫기">
-            ← 돌아가기
-          </button>
-          <h2 class="feed-title" data-i18n="feed.title">다른 세계의 기록</h2>
+        <div class="overlay-header">
+          <button id="btn-close-feed" class="overlay-header__back" aria-label="닫기">←</button>
+          <h2 class="overlay-header__title" data-i18n="feed.title">다른 세계의 기록</h2>
         </div>
         <div class="feed-date-picker" id="feed-date-picker" role="tablist" aria-label="날짜 선택"></div>
         <div id="feed-daily-tokens" class="feed-daily-tokens" hidden></div>
