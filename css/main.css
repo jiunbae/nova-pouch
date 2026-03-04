@@ -130,6 +130,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  overscroll-behavior: none;
+}
+
 body {
   font-family: var(--font-ui);
   color: var(--color-text-primary);
@@ -137,7 +141,7 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
   line-height: 1.5;
   word-break: keep-all;
   transition: background-color var(--transition-normal), color var(--transition-normal);

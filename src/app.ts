@@ -424,13 +424,10 @@ function bindFeedButtons(): void {
     if (!feedLayer) return;
     openOverlay(feedLayer);
 
-    const isCompleteScreen = (event?.currentTarget as HTMLElement)?.id === 'btn-feed-complete';
-
     // Lazy-load feed rendering
     const { loadFeed } = await import('./feed');
-    // From complete screen -> show relevant date. From idle -> show all (global).
-    const date = isCompleteScreen ? todayDateString() : null;
-    const state = await loadFeed(date);
+    // Always show today's date by default so users see the same daily prompt
+    const state = await loadFeed(todayDateString());
     renderFeedCards(state);
   });
 
