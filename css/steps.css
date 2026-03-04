@@ -360,28 +360,19 @@
   box-shadow: inset 0 2px 4px rgba(101, 78, 50, 0.04);
 }
 
-/* When writing is active, compress tokens to horizontal chips */
+/* When writing is active, compress tokens vertically to save space */
 .flow-section.review--writing-active .review__tokens {
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   margin-bottom: var(--space-8);
 }
 
 .flow-section.review--writing-active .review__tokens .token-card {
-  width: auto;
-  padding: 6px 14px;
-  gap: 8px;
-  border-radius: var(--radius-full);
-}
-
-.flow-section.review--writing-active .review__tokens .token-card::before {
-  width: 4px;
-  border-radius: var(--radius-full) 0 0 var(--radius-full);
+  padding: 6px var(--space-16);
+  gap: var(--space-8);
 }
 
 .flow-section.review--writing-active .review__tokens .token-card__emoji {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 }
 
 .flow-section.review--writing-active .review__tokens .token-card__label {
