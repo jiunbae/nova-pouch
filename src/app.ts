@@ -91,6 +91,10 @@ function bootstrap(): void {
   initTheme();
   bindThemeToggle();
 
+  if (import.meta.env.DEV) {
+    initDevTools();
+  }
+
   // --- Check for shared result link ---
   handleSharedLink();
 }
@@ -1191,4 +1195,73 @@ function isNativeKeyboardButton(element: Element): boolean {
   }
 
   return false;
+}
+
+/* ----------------------------------------------------------
+   Dev Tools — only loaded when import.meta.env.DEV is true
+   ---------------------------------------------------------- */
+
+function initDevTools(): void {
+  const panel = document.createElement('div');
+  panel.id = 'dev-tools';
+  panel.style.cssText = `
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+    background: rgba(0,0,0,0.85); color: #0f0; font-family: monospace;
+    font-size: 12px; padding: 8px 12px; display: flex; gap: 8px;
+    align-items: center; flex-wrap: wrap;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  `;
+
+  const label = document.createElement('span');
+  label.textContent = 'DEV';
+  label.style.cssText = 'color: #ff0; font-weight: bold; margin-right: 4px;';
+  panel.appendChild(label);
+
+  const addBtn = (text: string, handler: () => void) => {
+    const btn = document.createElement('button');
+    btn.textContent = text;
+    btn.style.cssText = `
+      background: #333; color: #0f0; border: 1px solid #0f0; border-radius: 4px;
+      padding: 4px 10px; font-family: monospace; font-size: 11px; cursor: pointer;
+    `;
+    btn.addEventListener('click', handler);
+    panel.appendChild(btn);
+  };
+
+  addBtn('Clear All Data', () => {
+    if (!confirm('Delete ALL localStorage data?')) return;
+    localStorage.clear();
+    showToast('All localStorage cleared');
+    location.reload();
+  });
+
+  addBtn('Clear History', () => {
+    localStorage.removeItem('nova-pouch-history');
+    const result = loadHistory();
+    updateHistoryPreview(result);
+    showToast('History cleared');
+  });
+
+  addBtn('Clear Daily', () => {
+    localStorage.removeItem('nova-pouch-daily-completion');
+    localStorage.removeItem('nova-pouch-daily-cache');
+    showToast('Daily data cleared');
+    checkDailyState();
+  });
+
+  addBtn('State', () => {
+    const s = readState();
+    console.log('[DEV] State:', JSON.parse(JSON.stringify(s)));
+    showToast(`Phase: ${s.phase}, Mode: ${s.gameMode}`);
+  });
+
+  addBtn('Reset Game', () => {
+    _viewOnly = false;
+    dispatchAction('RESTART');
+    checkDailyState();
+    showToast('Game reset');
+  });
+
+  document.body.appendChild(panel);
+  console.log('[DEV] Dev tools loaded');
 }
