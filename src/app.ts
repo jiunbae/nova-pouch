@@ -660,11 +660,9 @@ function renderFeedCards(feedState: FeedState): void {
       // Date header
       const header = document.createElement('div');
       header.className = 'feed-date-group__header';
-      const dateObj = new Date(date + 'T00:00:00');
-      const dayNames = getLocale() === 'en'
-        ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-        : ['일', '월', '화', '수', '목', '금', '토'];
-      const label = `${dateObj.getMonth() + 1}/${dateObj.getDate()} (${dayNames[dateObj.getDay()]})`;
+      // Parse manually to preserve fictional dates like 4/31
+      const [, mm, dd] = date.match(/(\d+)-(\d+)$/) || [];
+      const label = mm && dd ? `${parseInt(mm)}/${parseInt(dd)}` : date;
       header.textContent = label;
       listEl.appendChild(header);
 
