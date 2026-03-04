@@ -479,6 +479,21 @@ function renderFeedCards(feedState: FeedState): void {
     const card = document.createElement('article');
     card.className = 'feed-card';
     card.dataset.recordId = record.id;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+
+    card.addEventListener('click', () => {
+      const feedLayer = document.getElementById('layer-feed');
+      if (feedLayer) closeOverlay(feedLayer);
+      
+      // Adapt FeedRecord to look enough like HistorySession for the detail view
+      const session = {
+        tokens: record.tokens,
+        userStory: record.story,
+        id: record.id,
+      };
+      dispatchAction('VIEW_RECORD_DETAIL', { session });
+    });
 
     const tokens = record.tokens || {};
     const authorName = escapeHtml(record.user?.displayName || record.anonName || t('feed.anonymous'));

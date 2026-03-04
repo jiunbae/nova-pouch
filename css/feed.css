@@ -51,10 +51,20 @@
   box-shadow: var(--card-shadow);
   transition: all var(--transition-fast);
   border: 1.5px solid rgba(139, 119, 90, 0.15);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feed-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-elevated);
+  border-color: var(--color-primary-soft);
 }
 
 .feed-card:active {
   transform: scale(0.98);
+  background: var(--color-surface-secondary);
 }
 
 .feed-card__tokens {
