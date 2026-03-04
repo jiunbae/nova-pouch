@@ -53,7 +53,7 @@
 /* --- Persistent Collected Stack --- */
 .collected-stack {
   position: absolute;
-  top: 0;
+  top: 32px;
   left: 0;
   right: 0;
   z-index: 2;
@@ -360,26 +360,36 @@
   box-shadow: inset 0 2px 4px rgba(101, 78, 50, 0.04);
 }
 
-/* When writing is active, compress elements above to save screen space */
+/* When writing is active, compress tokens to horizontal chips */
 .flow-section.review--writing-active .review__tokens {
-  gap: var(--space-4);
-  margin-bottom: var(--space-12);
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--space-8);
 }
 
 .flow-section.review--writing-active .review__tokens .token-card {
-  padding: var(--space-8) var(--space-16);
+  width: auto;
+  padding: 6px 14px;
+  gap: 8px;
+  border-radius: var(--radius-full);
+}
+
+.flow-section.review--writing-active .review__tokens .token-card::before {
+  width: 4px;
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
 }
 
 .flow-section.review--writing-active .review__tokens .token-card__emoji {
-  font-size: 1.4rem;
+  font-size: 1.1rem;
 }
 
 .flow-section.review--writing-active .review__tokens .token-card__label {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .flow-section.review--writing-active .review__combo {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin-bottom: var(--space-8);
 }
 
