@@ -54,6 +54,8 @@ function bootstrap(): void {
         const historyEl = document.getElementById('layer-history');
         if (historyEl) closeOverlay(historyEl);
 
+        // Suppress per-action history pushes; push one entry at end
+        _viewOnly = true;
         dispatchAction('SET_GAME_MODE', 'free');
         if (session.tokens.red) dispatchAction('DRAW_TOKEN', { pouch: 'red', token: session.tokens.red });
         dispatchAction('CONFIRM_TOKEN');
@@ -63,6 +65,7 @@ function bootstrap(): void {
         dispatchAction('CONFIRM_TOKEN');
         if (session.userStory) dispatchAction('UPDATE_STORY', session.userStory);
         dispatchAction('COMPLETE');
+        window.history.pushState(null, '');
       }
       syncStarsFromState(state);
       syncWritingValidation(state?.userStory || '');
@@ -151,19 +154,27 @@ const FORWARD_ACTIONS: Set<string> = new Set([
   ACTIONS.COMPLETE,
 ]);
 
+let _viewOnly = false;
+
 function initHistoryNavigation(stateInstance: typeof gameState): void {
   let isHandlingPopState = false;
 
   window.addEventListener('popstate', () => {
+    if (_viewOnly) {
+      // Viewing a record — back goes to home, not previous game step
+      _viewOnly = false;
+      stateInstance.dispatch(ACTIONS.RESTART);
+      return;
+    }
     isHandlingPopState = true;
     stateInstance.dispatch(ACTIONS.GO_BACK);
     isHandlingPopState = false;
   });
 
   stateInstance.subscribe((_state, action) => {
-    if (isHandlingPopState) return;
+    if (isHandlingPopState || _viewOnly) return;
     if (FORWARD_ACTIONS.has(action)) {
-      history.pushState(null, '');
+      window.history.pushState(null, '');
     }
   });
 }
@@ -171,6 +182,7 @@ function initHistoryNavigation(stateInstance: typeof gameState): void {
 function bindAllButtons(): void {
   // Start game
   bindButtons(['[data-action="start-game"]', '#btn-start'], (event) => {
+    _viewOnly = false;
     const btn = document.getElementById('btn-start') as HTMLElement | null;
     const mode = (event?.currentTarget as HTMLElement)?.dataset?.mode || btn?.dataset.mode || 'daily';
     dispatchAction('SET_GAME_MODE', mode);
@@ -178,6 +190,7 @@ function bindAllButtons(): void {
   });
 
   bindButtons(['#btn-free-play', '#btn-free-play-after'], () => {
+    _viewOnly = false;
     dispatchAction('SET_GAME_MODE', 'free');
     dispatchAction('START_GAME');
   });
@@ -241,6 +254,7 @@ function bindAllButtons(): void {
 
   // Restart (from complete step)
   bindButtons(['[data-action="restart"]', '#step-btn-restart'], () => {
+    _viewOnly = false;
     dispatchAction('RESTART');
     checkDailyState();
   });
