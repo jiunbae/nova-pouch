@@ -73,6 +73,23 @@
   font-weight: 800;
 }
 
+/* Preset chip — distinct from regular date chips */
+.feed-date-chip--preset {
+  border-style: dashed;
+  border-color: var(--color-primary-soft);
+  background: var(--color-surface-secondary);
+}
+
+.feed-date-chip--preset.feed-date-chip--active {
+  border-style: solid;
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.feed-date-chip--preset .feed-date-chip__date {
+  font-size: 1rem;
+}
+
 /* --- Daily Tokens (shared for all cards on a date) --- */
 .feed-daily-tokens {
   display: flex;

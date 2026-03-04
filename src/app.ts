@@ -453,6 +453,8 @@ function renderIdleCompletion(completion: DailyCompletion): void {
 
 let _feedSelectedDate: string = todayDateString();
 
+const PRESET_DATE_KEY = 'preset';
+
 function buildDatePicker(): void {
   const picker = document.getElementById('feed-date-picker');
   if (!picker) return;
@@ -463,8 +465,8 @@ function buildDatePicker(): void {
     ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     : ['일', '월', '화', '수', '목', '금', '토'];
 
-  // Show 14 days: today + 13 past days
-  for (let i = 0; i < 14; i++) {
+  // Show 7 recent days
+  for (let i = 0; i < 7; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const dateStr = d.toISOString().slice(0, 10);
@@ -481,6 +483,18 @@ function buildDatePicker(): void {
     chip.addEventListener('click', () => selectFeedDate(dateStr));
     picker.appendChild(chip);
   }
+
+  // Preset chip — reference worlds from the book
+  const presetChip = document.createElement('button');
+  const isPresetActive = _feedSelectedDate === PRESET_DATE_KEY;
+  presetChip.className = `feed-date-chip feed-date-chip--preset${isPresetActive ? ' feed-date-chip--active' : ''}`;
+  presetChip.dataset.date = PRESET_DATE_KEY;
+  presetChip.setAttribute('role', 'tab');
+  presetChip.setAttribute('aria-selected', isPresetActive ? 'true' : 'false');
+  presetChip.innerHTML = `<span class="feed-date-chip__day">${getLocale() === 'en' ? 'Book' : '원작'}</span><span class="feed-date-chip__date">📖</span>`;
+
+  presetChip.addEventListener('click', () => selectFeedDate(PRESET_DATE_KEY));
+  picker.appendChild(presetChip);
 }
 
 async function selectFeedDate(date: string): Promise<void> {
@@ -493,10 +507,16 @@ async function selectFeedDate(date: string): Promise<void> {
     chip.setAttribute('aria-selected', isActive ? 'true' : 'false');
   });
 
-  // Reload feed
-  const { loadFeed } = await import('./feed');
-  const state = await loadFeed(date);
-  renderFeedCards(state);
+  if (date === PRESET_DATE_KEY) {
+    // Load preset-only records (all preset dates)
+    const { loadPresetFeed } = await import('./feed');
+    const state = loadPresetFeed();
+    renderFeedCards(state);
+  } else {
+    const { loadFeed } = await import('./feed');
+    const state = await loadFeed(date);
+    renderFeedCards(state);
+  }
 }
 
 function bindFeedButtons(): void {

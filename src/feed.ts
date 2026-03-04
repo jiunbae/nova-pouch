@@ -175,6 +175,22 @@ function buildPresetOnlyState(requestedDate: string | null, sort: string): FeedS
   };
 }
 
+export function loadPresetFeed(): FeedState {
+  const records = PRESET_FEED_RECORDS.slice();
+  _feedState = {
+    date: 'preset',
+    records,
+    page: 1,
+    totalPages: 1,
+    total: records.length,
+    sort: 'newest',
+    isLoading: false,
+    error: null,
+    likedIds: _feedState.likedIds,
+  };
+  return _feedState;
+}
+
 export async function loadFeed(date?: string | null, page = 1, sort = 'newest'): Promise<FeedState> {
   const requestedDate = date || null;
   const dKey = requestedDate || 'all';
