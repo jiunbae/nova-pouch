@@ -236,6 +236,10 @@ function transitionToStep(newStep: string | null): void {
     // Hide post-draw-flow if visible
     if (dom.postDrawFlow) dom.postDrawFlow.style.display = 'none';
 
+    // Restore progress dots
+    const progressEl = document.querySelector('.step-progress') as HTMLElement | null;
+    if (progressEl) progressEl.style.display = '';
+
     // Show collected stack during draw steps
     if (dom.collectedStack) {
       dom.collectedStack.style.display = '';
@@ -261,6 +265,10 @@ function transitionToStep(newStep: string | null): void {
 
     // Hide collected stack — review section shows its own token cards
     if (dom.collectedStack) dom.collectedStack.style.display = 'none';
+
+    // Hide progress dots — no longer needed after all draws
+    const progressEl = document.querySelector('.step-progress') as HTMLElement | null;
+    if (progressEl) progressEl.style.display = 'none';
 
     if (dom.postDrawFlow) {
       dom.postDrawFlow.style.display = 'flex';
