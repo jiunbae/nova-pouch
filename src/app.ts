@@ -418,16 +418,65 @@ function renderIdleCompletion(completion: DailyCompletion): void {
   }
 }
 
+let _feedSelectedDate: string = todayDateString();
+
+function buildDatePicker(): void {
+  const picker = document.getElementById('feed-date-picker');
+  if (!picker) return;
+  picker.innerHTML = '';
+
+  const today = new Date();
+  const days = getLocale() === 'en'
+    ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    : ['일', '월', '화', '수', '목', '금', '토'];
+
+  // Show 14 days: today + 13 past days
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0, 10);
+    const dayLabel = days[d.getDay()];
+    const dateLabel = `${d.getMonth() + 1}/${d.getDate()}`;
+
+    const chip = document.createElement('button');
+    chip.className = `feed-date-chip${dateStr === _feedSelectedDate ? ' feed-date-chip--active' : ''}`;
+    chip.dataset.date = dateStr;
+    chip.setAttribute('role', 'tab');
+    chip.setAttribute('aria-selected', dateStr === _feedSelectedDate ? 'true' : 'false');
+    chip.innerHTML = `<span class="feed-date-chip__day">${dayLabel}</span><span class="feed-date-chip__date">${dateLabel}</span>`;
+
+    chip.addEventListener('click', () => selectFeedDate(dateStr));
+    picker.appendChild(chip);
+  }
+}
+
+async function selectFeedDate(date: string): Promise<void> {
+  _feedSelectedDate = date;
+
+  // Update active chip
+  document.querySelectorAll('.feed-date-chip').forEach(chip => {
+    const isActive = (chip as HTMLElement).dataset.date === date;
+    chip.classList.toggle('feed-date-chip--active', isActive);
+    chip.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+
+  // Reload feed
+  const { loadFeed } = await import('./feed');
+  const state = await loadFeed(date);
+  renderFeedCards(state);
+}
+
 function bindFeedButtons(): void {
-  bindButtons(['#btn-feed-idle', '#btn-feed-complete'], async (event) => {
+  bindButtons(['#btn-feed-idle', '#btn-feed-complete'], async () => {
     const feedLayer = document.getElementById('layer-feed');
     if (!feedLayer) return;
+
+    _feedSelectedDate = todayDateString();
+    buildDatePicker();
     openOverlay(feedLayer);
 
-    // Lazy-load feed rendering
     const { loadFeed } = await import('./feed');
-    // Always show today's date by default so users see the same daily prompt
-    const state = await loadFeed(todayDateString());
+    const state = await loadFeed(_feedSelectedDate);
     renderFeedCards(state);
   });
 

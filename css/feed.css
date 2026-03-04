@@ -35,6 +35,61 @@
   color: var(--color-text-primary);
 }
 
+/* --- Date Picker --- */
+.feed-date-picker {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 0 var(--space-16);
+  margin-bottom: var(--space-8);
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+
+.feed-date-picker::-webkit-scrollbar { display: none; }
+
+.feed-date-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 14px;
+  border-radius: var(--radius-12);
+  background: var(--color-surface);
+  border: 1.5px solid rgba(139, 119, 90, 0.12);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feed-date-chip:active { transform: scale(0.95); }
+
+.feed-date-chip--active {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border-color: var(--color-primary);
+}
+
+.feed-date-chip__day {
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.feed-date-chip--active .feed-date-chip__day {
+  opacity: 0.9;
+}
+
+.feed-date-chip__date {
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
 /* --- Feed List --- */
 .feed-list {
   display: flex;
