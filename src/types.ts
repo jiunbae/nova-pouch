@@ -166,6 +166,7 @@ export interface FeedRecord {
   anonName?: string;
   likeCount: number;
   date?: string;
+  createdAt?: string;
   source?: 'api' | 'preset';
 }
 
