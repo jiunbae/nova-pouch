@@ -173,11 +173,11 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'auth.logout':          '로그아웃',
     'auth.savePrompt':      '로그인하면 기록이 계정에 저장됩니다',
     'auth.saveLogin':       '로그인하고 기록 저장하기',
-    'auth.google':          'Google로 로그인',
+    'auth.google':          'Google 계정으로 로그인',
     'auth.github':          'GitHub로 로그인',
-    'auth.kakao':           'Kakao로 로그인',
-    'auth.naver':           'Naver로 로그인',
-    'auth.twitter':         'Twitter로 로그인',
+    'auth.kakao':           '카카오 로그인',
+    'auth.naver':           '네이버로 로그인',
+    'auth.twitter':         'X로 로그인',
 
     // Lang toggle
     'lang.toggle':          'EN',
@@ -346,7 +346,7 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'auth.github':          'Sign in with GitHub',
     'auth.kakao':           'Sign in with Kakao',
     'auth.naver':           'Sign in with Naver',
-    'auth.twitter':         'Sign in with Twitter',
+    'auth.twitter':         'Sign in with X',
 
     // Lang toggle
     'lang.toggle':          '한국어',

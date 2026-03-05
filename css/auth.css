@@ -34,7 +34,7 @@
   white-space: nowrap;
 }
 
-/* Provider buttons */
+/* Provider buttons — shared layout */
 .auth-providers {
   display: flex;
   flex-direction: column;
@@ -44,54 +44,80 @@
   margin: 0 auto;
 }
 
+.auth-providers .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.auth-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+/* Google — per Google Identity branding guidelines */
 .btn--auth-google {
   background: #fff;
-  color: #3c4043;
-  border: 1.5px solid #dadce0;
+  color: #1f1f1f;
+  border: 1px solid #747775;
 }
 
 .btn--auth-google:hover {
-  background: #f8f9fa;
+  background: #f2f2f2;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
 }
 
+/* GitHub — Primer design: dark bg, white Invertocat */
 .btn--auth-github {
   background: #24292f;
   color: #fff;
-  border: 1.5px solid #24292f;
+  border: 1px solid #24292f;
 }
 
 .btn--auth-github:hover {
-  background: #32383f;
+  background: #2f363d;
 }
 
+/* Kakao — official brand: #FEE500 bg, #191919 text+icon */
 .btn--auth-kakao {
   background: #FEE500;
   color: #191919;
-  border: 1.5px solid #FEE500;
+  border: 1px solid #FEE500;
 }
 
 .btn--auth-kakao:hover {
-  background: #fdd800;
+  background: #fdd835;
 }
 
+/* Naver — official brand: #03C75A bg, white N mark */
 .btn--auth-naver {
   background: #03C75A;
   color: #fff;
-  border: 1.5px solid #03C75A;
+  border: 1px solid #03C75A;
 }
 
 .btn--auth-naver:hover {
   background: #02b350;
 }
 
+/* X (Twitter) — black bg, white X mark */
 .btn--auth-twitter {
-  background: #1d1d1d;
+  background: #000;
   color: #fff;
-  border: 1.5px solid #1d1d1d;
+  border: 1px solid #000;
 }
 
 .btn--auth-twitter:hover {
-  background: #333;
+  background: #1a1a1a;
 }
 
 /* Login prompt card in complete section */
