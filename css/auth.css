@@ -1,0 +1,111 @@
+/* auth.css — Authentication UI styles */
+
+/* Navbar user chip */
+.auth-user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  border: 1.5px solid var(--color-border, #e0d8cc);
+  border-radius: var(--radius-full, 999px);
+  background: var(--color-surface, #fff);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  transition: background 0.15s;
+}
+
+.auth-user-chip:hover {
+  background: var(--color-bg, #f5f0e8);
+}
+
+.auth-user-chip__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.auth-user-chip__name {
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Provider buttons */
+.auth-providers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12, 12px);
+  padding: var(--space-24, 24px) var(--space-16, 16px);
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.btn--auth-google {
+  background: #fff;
+  color: #3c4043;
+  border: 1.5px solid #dadce0;
+}
+
+.btn--auth-google:hover {
+  background: #f8f9fa;
+}
+
+.btn--auth-github {
+  background: #24292f;
+  color: #fff;
+  border: 1.5px solid #24292f;
+}
+
+.btn--auth-github:hover {
+  background: #32383f;
+}
+
+.btn--auth-kakao {
+  background: #FEE500;
+  color: #191919;
+  border: 1.5px solid #FEE500;
+}
+
+.btn--auth-kakao:hover {
+  background: #fdd800;
+}
+
+.btn--auth-naver {
+  background: #03C75A;
+  color: #fff;
+  border: 1.5px solid #03C75A;
+}
+
+.btn--auth-naver:hover {
+  background: #02b350;
+}
+
+.btn--auth-twitter {
+  background: #1d1d1d;
+  color: #fff;
+  border: 1.5px solid #1d1d1d;
+}
+
+.btn--auth-twitter:hover {
+  background: #333;
+}
+
+/* Login prompt card in complete section */
+.auth-login-prompt {
+  margin: var(--space-16, 16px) 0;
+  padding: var(--space-16, 16px);
+  background: var(--color-surface, #fff);
+  border: 1.5px dashed var(--color-border, #e0d8cc);
+  border-radius: var(--radius-12, 12px);
+  text-align: center;
+}
+
+.auth-login-prompt__text {
+  margin: 0 0 var(--space-12, 12px);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}

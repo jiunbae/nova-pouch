@@ -1,5 +1,7 @@
 /* api.ts — API Client for jiun-api */
 
+import { getAccessToken, refreshToken } from './auth';
+
 const API_BASE = 'https://api.jiun.dev/nova-pouch';
 
 export class ApiError extends Error {
@@ -12,6 +14,11 @@ export class ApiError extends Error {
   }
 }
 
+function authHeaders(): Record<string, string> {
+  const token = getAccessToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function apiGet(
   path: string,
   params: Record<string, string | number | null | undefined> = {},
@@ -22,26 +29,36 @@ export async function apiGet(
     if (value != null) url.searchParams.set(key, String(value));
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const doFetch = async () => {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url.toString(), {
+        headers: authHeaders(),
+        credentials: 'include',
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({})) as Record<string, string>;
+        throw new ApiError(response.status, body.message || response.statusText);
+      }
+      return response.json();
+    } catch (error) {
+      clearTimeout(tid);
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(0, (error as Error).message || 'Network error');
+    }
+  };
 
   try {
-    const response = await fetch(url.toString(), {
-      credentials: 'include',
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const body = await response.json().catch(() => ({})) as Record<string, string>;
-      throw new ApiError(response.status, body.message || response.statusText);
-    }
-
-    return response.json();
+    return await doFetch();
   } catch (error) {
-    clearTimeout(timeoutId);
-    if (error instanceof ApiError) throw error;
-    throw new ApiError(0, (error as Error).message || 'Network error');
+    if (error instanceof ApiError && error.status === 401 && getAccessToken()) {
+      const newToken = await refreshToken();
+      if (newToken) return doFetch();
+    }
+    throw error;
   }
 }
 
@@ -50,28 +67,37 @@ export async function apiPost(
   body: unknown,
   timeoutMs = 15000,
 ): Promise<unknown> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const doFetch = async () => {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(API_BASE + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        credentials: 'include',
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({})) as Record<string, string>;
+        throw new ApiError(response.status, data.message || response.statusText);
+      }
+      return response.json();
+    } catch (error) {
+      clearTimeout(tid);
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(0, (error as Error).message || 'Network error');
+    }
+  };
 
   try {
-    const response = await fetch(API_BASE + path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({})) as Record<string, string>;
-      throw new ApiError(response.status, data.message || response.statusText);
-    }
-
-    return response.json();
+    return await doFetch();
   } catch (error) {
-    clearTimeout(timeoutId);
-    if (error instanceof ApiError) throw error;
-    throw new ApiError(0, (error as Error).message || 'Network error');
+    if (error instanceof ApiError && error.status === 401 && getAccessToken()) {
+      const newToken = await refreshToken();
+      if (newToken) return doFetch();
+    }
+    throw error;
   }
 }

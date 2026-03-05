@@ -17,6 +17,8 @@ import {
 import { startCountdown, stopCountdown } from './countdown';
 import { downloadShareCard, shareToTwitter, nativeShare, buildCompactShare } from './share';
 import { submitRecord } from './feed';
+import { initAuth, getAuthState, subscribeAuth, startOAuthFlow, logout } from './auth';
+import type { AuthState } from './auth';
 import type { GameStateSnapshot, HistoryData, HistorySession, FeedState, FeedRecord, DailyCompletion, Token, PouchColor } from './types';
 
 const MIN_STORY_LENGTH = 50;
@@ -26,9 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
   bootstrap();
 });
 
-function bootstrap(): void {
+async function bootstrap(): Promise<void> {
   initI18n();
   updateDOM();
+  await initAuth();
 
   initRenderer(gameState, loadHistory);
 
@@ -94,6 +97,11 @@ function bootstrap(): void {
   if (import.meta.env.DEV) {
     initDevTools();
   }
+
+  // Auth UI
+  subscribeAuth(renderAuthUI);
+  renderAuthUI(getAuthState());
+  bindAuthButtons();
 
   // --- Check for shared result link ---
   handleSharedLink();
@@ -250,6 +258,7 @@ function bindAllButtons(): void {
 
       autoSubmitRecord({ ...sessionSnapshot, userStory: storyText } as GameStateSnapshot);
       fetchTodayCount();
+      showLoginPromptIfNeeded();
     } else {
       // === Start writing logic ===
       dispatchAction('START_WRITING');
@@ -777,6 +786,82 @@ function autoSubmitRecord(state: GameStateSnapshot): void {
   }).catch(() => {
     // Silent fail — record saved locally via history.js
   });
+}
+
+function renderAuthUI(authState: AuthState): void {
+  const loginBtn = document.getElementById('btn-auth-login');
+  const userChip = document.getElementById('auth-user-chip');
+  const avatarImg = document.getElementById('auth-user-avatar') as HTMLImageElement | null;
+  const nameEl = document.getElementById('auth-user-name');
+
+  if (authState.isLoggedIn && authState.user) {
+    if (loginBtn) loginBtn.setAttribute('hidden', '');
+    if (userChip) {
+      userChip.removeAttribute('hidden');
+      if (avatarImg && authState.user.avatarUrl) {
+        avatarImg.src = authState.user.avatarUrl;
+        avatarImg.alt = authState.user.displayName;
+      }
+      if (nameEl) nameEl.textContent = authState.user.displayName;
+    }
+    // Hide login prompt if visible
+    const prompt = document.getElementById('auth-login-prompt');
+    if (prompt) prompt.setAttribute('hidden', '');
+  } else {
+    if (loginBtn) loginBtn.removeAttribute('hidden');
+    if (userChip) userChip.setAttribute('hidden', '');
+  }
+}
+
+function bindAuthButtons(): void {
+  // Navbar login button → open login overlay
+  const loginBtn = document.getElementById('btn-auth-login');
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      const overlay = document.getElementById('layer-login');
+      if (overlay) openOverlay(overlay);
+    });
+  }
+
+  // Close login overlay
+  const closeBtn = document.getElementById('btn-close-login');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      const overlay = document.getElementById('layer-login');
+      if (overlay) closeOverlay(overlay);
+    });
+  }
+
+  // Provider buttons
+  document.querySelectorAll<HTMLElement>('[data-auth-provider]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const provider = btn.dataset.authProvider;
+      if (provider) startOAuthFlow(provider);
+    });
+  });
+
+  // User chip → logout
+  const userChip = document.getElementById('auth-user-chip');
+  if (userChip) {
+    userChip.addEventListener('click', async () => {
+      await logout();
+    });
+  }
+
+  // Login prompt button in complete section
+  const promptBtn = document.getElementById('btn-auth-prompt-login');
+  if (promptBtn) {
+    promptBtn.addEventListener('click', () => {
+      const overlay = document.getElementById('layer-login');
+      if (overlay) openOverlay(overlay);
+    });
+  }
+}
+
+function showLoginPromptIfNeeded(): void {
+  if (getAuthState().isLoggedIn) return;
+  const prompt = document.getElementById('auth-login-prompt');
+  if (prompt) prompt.removeAttribute('hidden');
 }
 
 async function fetchTodayCount(): Promise<void> {

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script>
+    // GitHub Pages SPA redirect — preserves path and hash for /auth/callback
+    var path = window.location.pathname;
+    var hash = window.location.hash;
+    var search = window.location.search;
+    // Redirect to index.html with the original path encoded as a query param
+    // so the SPA can handle routing client-side
+    if (path !== '/' && path !== '/index.html') {
+      window.location.replace(
+        '/' + search + (search ? '&' : '?') + 'p=' + encodeURIComponent(path) + hash
+      );
+    }
+  </script>
+</head>
+<body></body>
+</html>

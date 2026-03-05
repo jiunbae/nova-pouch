@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Nova Pouch - 차원의 주머니에서 발견한 파편으로 세계를 기록하세요">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.googletagservices.com https://static.cloudflareinsights.com; style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline'; font-src https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: blob: https://www.google-analytics.com https://pagead2.googlesyndication.com; connect-src 'self' https://api.jiun.dev https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://pagead2.googlesyndication.com https://cdn.jsdelivr.net; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://www.googletagservices.com https://static.cloudflareinsights.com; style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline'; font-src https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: blob: https://www.google-analytics.com https://pagead2.googlesyndication.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://k.kakaocdn.net https://phinf.pstatic.net https://pbs.twimg.com; connect-src 'self' https://api.jiun.dev https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://pagead2.googlesyndication.com https://cdn.jsdelivr.net; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com">
   <meta name="theme-color" content="#FFFCF5">
   <meta property="og:title" content="Nova Pouch">
   <meta property="og:description" content="차원의 주머니에서 발견한 파편으로 세계를 기록하세요">
@@ -39,6 +39,7 @@
   <link rel="stylesheet" href="css/screens.css">
   <link rel="stylesheet" href="css/responsive.css">
   <link rel="stylesheet" href="css/feed.css">
+  <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
   <a href="#main-content" class="sr-only skip-link">Skip to main content</a>
@@ -53,6 +54,11 @@
         <div class="navbar__controls">
           <button id="btn-theme-toggle" class="control-btn" title="테마 변경">🎨</button>
           <button id="btn-lang-toggle" class="lang-toggle" data-i18n="lang.toggle">한국어</button>
+          <button id="btn-auth-login" class="control-btn" data-i18n="auth.login" hidden>로그인</button>
+          <button id="auth-user-chip" class="auth-user-chip" hidden>
+            <img id="auth-user-avatar" class="auth-user-chip__avatar" src="" alt="" width="24" height="24">
+            <span id="auth-user-name" class="auth-user-chip__name"></span>
+          </button>
         </div>
       </div>
     </nav>
@@ -316,6 +322,11 @@
                 <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
               </div>
 
+              <div id="auth-login-prompt" class="auth-login-prompt" hidden>
+                <p class="auth-login-prompt__text" data-i18n="auth.savePrompt">로그인하면 기록이 계정에 저장됩니다</p>
+                <button id="btn-auth-prompt-login" class="btn btn--secondary btn--full" data-i18n="auth.saveLogin">로그인하고 기록 저장하기</button>
+              </div>
+
                 <div class="step__actions btn-group">
                 <button id="step-btn-restart" class="btn btn--primary btn--full" data-i18n="complete.restart" aria-label="다시 탐험하기">다시 탐험</button>
                 <button id="btn-feed-complete" class="btn btn--secondary btn--full" data-i18n="feed.seeOthers" aria-label="다른 사람들은 어떻게 상상했을까?">
@@ -364,6 +375,33 @@
         <button id="btn-feed-more" class="btn btn--ghost feed-load-more" data-i18n="feed.loadMore" hidden>
           더 보기
         </button>
+      </div>
+    </section>
+
+    <!-- ========== Layer: LOGIN (overlay) ========== -->
+    <section id="layer-login" class="layer layer--overlay" role="dialog" aria-modal="true" aria-label="로그인">
+      <div class="layer__inner">
+        <div class="overlay-header">
+          <button id="btn-close-login" class="overlay-header__back" aria-label="닫기">←</button>
+          <h2 class="overlay-header__title" data-i18n="auth.loginTitle">로그인</h2>
+        </div>
+        <div class="auth-providers">
+          <button class="btn btn--auth-google btn--full" data-auth-provider="google">
+            <span>Google</span>
+          </button>
+          <button class="btn btn--auth-github btn--full" data-auth-provider="github">
+            <span>GitHub</span>
+          </button>
+          <button class="btn btn--auth-kakao btn--full" data-auth-provider="kakao">
+            <span>Kakao</span>
+          </button>
+          <button class="btn btn--auth-naver btn--full" data-auth-provider="naver">
+            <span>Naver</span>
+          </button>
+          <button class="btn btn--auth-twitter btn--full" data-auth-provider="twitter">
+            <span>Twitter</span>
+          </button>
+        </div>
       </div>
     </section>
 
