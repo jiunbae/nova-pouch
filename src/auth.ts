@@ -2,6 +2,13 @@
 
 const AUTH_API_BASE = 'https://api.jiun.dev/auth';
 const TOKEN_KEY = 'nova-pouch-access-token';
+const AUTH_TIMEOUT_MS = 5000;
+
+function authFetch(url: string, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), AUTH_TIMEOUT_MS);
+  return fetch(url, { ...init, signal: controller.signal }).finally(() => clearTimeout(tid));
+}
 
 export interface AuthUser {
   id: string;
@@ -97,7 +104,7 @@ export async function initAuth(): Promise<void> {
 
 async function fetchMe(token: string): Promise<AuthUser | null> {
   try {
-    const res = await fetch(`${AUTH_API_BASE}/me`, {
+    const res = await authFetch(`${AUTH_API_BASE}/me`, {
       headers: { Authorization: `Bearer ${token}` },
       credentials: 'include',
     });
@@ -111,7 +118,7 @@ async function fetchMe(token: string): Promise<AuthUser | null> {
 
 export async function refreshToken(): Promise<string | null> {
   try {
-    const res = await fetch(`${AUTH_API_BASE}/refresh`, {
+    const res = await authFetch(`${AUTH_API_BASE}/refresh`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -134,7 +141,7 @@ export function startOAuthFlow(provider: string): void {
 
 export async function logout(): Promise<void> {
   try {
-    await fetch(`${AUTH_API_BASE}/logout`, {
+    await authFetch(`${AUTH_API_BASE}/logout`, {
       method: 'POST',
       credentials: 'include',
     });

@@ -41,7 +41,7 @@ export async function apiGet(
       clearTimeout(tid);
       if (!response.ok) {
         const body = await response.json().catch(() => ({})) as Record<string, string>;
-        throw new ApiError(response.status, body.message || response.statusText);
+        throw new ApiError(response.status, body.message || body.error || response.statusText);
       }
       return response.json();
     } catch (error) {
@@ -81,7 +81,7 @@ export async function apiPost(
       clearTimeout(tid);
       if (!response.ok) {
         const data = await response.json().catch(() => ({})) as Record<string, string>;
-        throw new ApiError(response.status, data.message || response.statusText);
+        throw new ApiError(response.status, data.message || data.error || response.statusText);
       }
       return response.json();
     } catch (error) {

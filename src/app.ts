@@ -794,13 +794,26 @@ function renderAuthUI(authState: AuthState): void {
   const avatarImg = document.getElementById('auth-user-avatar') as HTMLImageElement | null;
   const nameEl = document.getElementById('auth-user-name');
 
+  if (authState.isLoading) {
+    // Hide both during verification
+    if (loginBtn) loginBtn.setAttribute('hidden', '');
+    if (userChip) userChip.setAttribute('hidden', '');
+    return;
+  }
+
   if (authState.isLoggedIn && authState.user) {
     if (loginBtn) loginBtn.setAttribute('hidden', '');
     if (userChip) {
       userChip.removeAttribute('hidden');
-      if (avatarImg && authState.user.avatarUrl) {
-        avatarImg.src = authState.user.avatarUrl;
-        avatarImg.alt = authState.user.displayName;
+      userChip.setAttribute('aria-label', t('auth.logout') + ' (' + authState.user.displayName + ')');
+      if (avatarImg) {
+        if (authState.user.avatarUrl) {
+          avatarImg.src = authState.user.avatarUrl;
+          avatarImg.alt = authState.user.displayName;
+          avatarImg.style.display = '';
+        } else {
+          avatarImg.style.display = 'none';
+        }
       }
       if (nameEl) nameEl.textContent = authState.user.displayName;
     }
@@ -840,10 +853,11 @@ function bindAuthButtons(): void {
     });
   });
 
-  // User chip → logout
+  // User chip → logout with confirmation
   const userChip = document.getElementById('auth-user-chip');
   if (userChip) {
     userChip.addEventListener('click', async () => {
+      if (!confirm(t('auth.logoutConfirm'))) return;
       await logout();
     });
   }
@@ -1087,7 +1101,7 @@ function closeOverlay(overlayEl: HTMLElement): void {
 }
 
 function trapFocusInOverlay(event: KeyboardEvent): void {
-  const overlays = ['layer-feed', 'layer-history'];
+  const overlays = ['layer-login', 'layer-feed', 'layer-history'];
   for (const id of overlays) {
     const overlay = document.getElementById(id);
     if (!overlay || !overlay.classList.contains('layer--active')) continue;
@@ -1114,6 +1128,11 @@ function trapFocusInOverlay(event: KeyboardEvent): void {
 function initOverlayKeyHandlers(): void {
   document.addEventListener('keydown', (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
+      const loginLayer = document.getElementById('layer-login');
+      if (loginLayer?.classList.contains('layer--active')) {
+        closeOverlay(loginLayer);
+        return;
+      }
       const feedLayer = document.getElementById('layer-feed');
       if (feedLayer?.classList.contains('layer--active')) {
         closeOverlay(feedLayer);
