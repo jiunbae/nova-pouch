@@ -87,38 +87,6 @@
   background: #2f363d;
 }
 
-/* Kakao — official brand: #FEE500 bg, #191919 text+icon */
-.btn--auth-kakao {
-  background: #FEE500;
-  color: #191919;
-  border: 1px solid #FEE500;
-}
-
-.btn--auth-kakao:hover {
-  background: #fdd835;
-}
-
-/* Naver — official brand: #03C75A bg, white N mark */
-.btn--auth-naver {
-  background: #03C75A;
-  color: #fff;
-  border: 1px solid #03C75A;
-}
-
-.btn--auth-naver:hover {
-  background: #02b350;
-}
-
-/* X (Twitter) — black bg, white X mark */
-.btn--auth-twitter {
-  background: #000;
-  color: #fff;
-  border: 1px solid #000;
-}
-
-.btn--auth-twitter:hover {
-  background: #1a1a1a;
-}
 
 /* Login prompt card in complete section */
 .auth-login-prompt {
