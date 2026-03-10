@@ -782,7 +782,8 @@ function autoSubmitRecord(state: GameStateSnapshot): void {
     story: state.userStory || '',
   }).then(result => {
     if ((result as Record<string, unknown>)?.id) {
-      dispatchAction('SUBMIT_RECORD', { recordId: (result as Record<string, string>).id });
+      const res = result as Record<string, string>;
+      dispatchAction('SUBMIT_RECORD', { recordId: res.id, shortId: res.shortId });
     }
   }).catch(() => {
     // Silent fail — record saved locally via history.js

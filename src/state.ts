@@ -100,6 +100,7 @@ function createInitialState(): GameStateSnapshot {
     dailyTokens: { red: null, blue: null, green: null },
     gameMode: 'daily',
     recordId: null,
+    shortId: null,
   };
 }
 
@@ -263,9 +264,12 @@ class GameState implements GameStateInstance {
         s.gameMode = (payload === 'free' ? 'free' : 'daily') as GameMode;
         break;
 
-      case ACTIONS.SUBMIT_RECORD:
-        s.recordId = (payload as { recordId?: string })?.recordId || null;
+      case ACTIONS.SUBMIT_RECORD: {
+        const rec = payload as { recordId?: string; shortId?: string };
+        s.recordId = rec?.recordId || null;
+        s.shortId = rec?.shortId || null;
         break;
+      }
 
       case ACTIONS.GO_BACK: {
         if (s.phase === PHASES.HISTORY) {

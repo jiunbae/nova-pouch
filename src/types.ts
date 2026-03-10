@@ -72,6 +72,7 @@ export interface GameStateSnapshot {
   dailyTokens: DrawnTokens;
   gameMode: GameMode;
   recordId: string | null;
+  shortId: string | null;
   createdAt?: string;
 }
 
