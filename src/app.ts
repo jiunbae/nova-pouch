@@ -1,7 +1,8 @@
 import { gameState, ACTIONS } from './state';
 import { initRenderer, refreshLocale } from './renderer';
 import { initPouch } from './pouch';
-import { loadHistory, saveSession, deleteAllHistory } from './history';
+import { loadHistory, saveSession, deleteAllHistory, getStats } from './history';
+import { getTokenById } from './tokens';
 import { calculateDifficulty } from './tokens';
 import { debounce, generateId } from './utils';
 import { initI18n, setLocale, getLocale, t, updateDOM } from './i18n';
@@ -805,7 +806,7 @@ function renderAuthUI(authState: AuthState): void {
     if (loginBtn) loginBtn.setAttribute('hidden', '');
     if (userChip) {
       userChip.removeAttribute('hidden');
-      userChip.setAttribute('aria-label', t('auth.logout') + ' (' + authState.user.displayName + ')');
+      userChip.setAttribute('aria-label', t('profile.title') + ' (' + authState.user.displayName + ')');
       if (avatarImg) {
         if (authState.user.avatarUrl) {
           avatarImg.src = authState.user.avatarUrl;
@@ -823,6 +824,52 @@ function renderAuthUI(authState: AuthState): void {
   } else {
     if (loginBtn) loginBtn.removeAttribute('hidden');
     if (userChip) userChip.setAttribute('hidden', '');
+  }
+}
+
+function renderProfileOverlay(): void {
+  const authState = getAuthState();
+  if (!authState.isLoggedIn || !authState.user) return;
+
+  const avatarImg = document.getElementById('profile-avatar') as HTMLImageElement | null;
+  const nameEl = document.getElementById('profile-name');
+  const providerEl = document.getElementById('profile-provider');
+
+  if (avatarImg) {
+    if (authState.user.avatarUrl) {
+      avatarImg.src = authState.user.avatarUrl;
+      avatarImg.alt = authState.user.displayName;
+      avatarImg.style.display = '';
+    } else {
+      avatarImg.style.display = 'none';
+    }
+  }
+  if (nameEl) nameEl.textContent = authState.user.displayName;
+  if (providerEl) providerEl.textContent = t(`profile.provider.${authState.user.provider}`) || authState.user.provider;
+
+  // Stats from local history
+  const history = loadHistory();
+  const stats = getStats(history);
+
+  const totalEl = document.getElementById('profile-stat-total');
+  const avgEl = document.getElementById('profile-stat-avg');
+  const favEl = document.getElementById('profile-stat-fav');
+
+  if (totalEl) totalEl.textContent = String(stats.totalPlayed);
+  if (avgEl) avgEl.textContent = stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '–';
+  if (favEl) {
+    const entries = Object.entries(stats.favoriteTokens || {});
+    if (entries.length > 0) {
+      entries.sort((a, b) => b[1] - a[1]);
+      const topId = entries[0][0];
+      // Token IDs are like "red-door" — extract pouch from prefix
+      const pouch = topId.split('-')[0] as import('./types').PouchColor;
+      const token = getTokenById(pouch, topId);
+      favEl.textContent = token?.emoji || '–';
+      if (token) favEl.title = token.label;
+    } else {
+      favEl.textContent = '–';
+    }
   }
 }
 
@@ -853,11 +900,44 @@ function bindAuthButtons(): void {
     });
   });
 
-  // User chip → logout with confirmation
+  // User chip → open profile overlay
   const userChip = document.getElementById('auth-user-chip');
   if (userChip) {
-    userChip.addEventListener('click', async () => {
+    userChip.addEventListener('click', () => {
+      const overlay = document.getElementById('layer-profile');
+      if (overlay) {
+        renderProfileOverlay();
+        openOverlay(overlay);
+      }
+    });
+  }
+
+  // Close profile overlay
+  const closeProfileBtn = document.getElementById('btn-close-profile');
+  if (closeProfileBtn) {
+    closeProfileBtn.addEventListener('click', () => {
+      const overlay = document.getElementById('layer-profile');
+      if (overlay) closeOverlay(overlay);
+    });
+  }
+
+  // Profile → my records
+  const profileHistoryBtn = document.getElementById('btn-profile-history');
+  if (profileHistoryBtn) {
+    profileHistoryBtn.addEventListener('click', () => {
+      const profileOverlay = document.getElementById('layer-profile');
+      if (profileOverlay) closeOverlay(profileOverlay);
+      dispatchAction('OPEN_HISTORY');
+    });
+  }
+
+  // Profile → logout
+  const profileLogoutBtn = document.getElementById('btn-profile-logout');
+  if (profileLogoutBtn) {
+    profileLogoutBtn.addEventListener('click', async () => {
       if (!confirm(t('auth.logoutConfirm'))) return;
+      const overlay = document.getElementById('layer-profile');
+      if (overlay) closeOverlay(overlay);
       await logout();
     });
   }
@@ -1128,6 +1208,11 @@ function trapFocusInOverlay(event: KeyboardEvent): void {
 function initOverlayKeyHandlers(): void {
   document.addEventListener('keydown', (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
+      const profileLayer = document.getElementById('layer-profile');
+      if (profileLayer?.classList.contains('layer--active')) {
+        closeOverlay(profileLayer);
+        return;
+      }
       const loginLayer = document.getElementById('layer-login');
       if (loginLayer?.classList.contains('layer--active')) {
         closeOverlay(loginLayer);

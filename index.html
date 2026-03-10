@@ -378,6 +378,44 @@
       </div>
     </section>
 
+    <!-- ========== Layer: PROFILE (overlay) ========== -->
+    <section id="layer-profile" class="layer layer--overlay" role="dialog" aria-modal="true" aria-label="프로필">
+      <div class="layer__inner">
+        <div class="overlay-header">
+          <button id="btn-close-profile" class="overlay-header__back" aria-label="닫기">←</button>
+          <h2 class="overlay-header__title" data-i18n="profile.title">프로필</h2>
+        </div>
+
+        <div class="profile-card">
+          <img id="profile-avatar" class="profile-card__avatar" src="" alt="" width="64" height="64">
+          <div class="profile-card__info">
+            <h3 id="profile-name" class="profile-card__name"></h3>
+            <span id="profile-provider" class="profile-card__provider"></span>
+          </div>
+        </div>
+
+        <div class="profile-stats" id="profile-stats">
+          <div class="profile-stats__item">
+            <span class="profile-stats__value" id="profile-stat-total">0</span>
+            <span class="profile-stats__label" data-i18n="profile.totalRecords">기록 수</span>
+          </div>
+          <div class="profile-stats__item">
+            <span class="profile-stats__value" id="profile-stat-avg">–</span>
+            <span class="profile-stats__label" data-i18n="profile.avgRating">평균 별점</span>
+          </div>
+          <div class="profile-stats__item">
+            <span class="profile-stats__value" id="profile-stat-fav">–</span>
+            <span class="profile-stats__label" data-i18n="profile.favToken">최다 토큰</span>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <button id="btn-profile-history" class="btn btn--secondary btn--full" data-i18n="profile.myRecords">기록 보관소</button>
+          <button id="btn-profile-logout" class="btn btn--danger btn--full" data-i18n="auth.logout">로그아웃</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ========== Layer: LOGIN (overlay) ========== -->
     <section id="layer-login" class="layer layer--overlay" role="dialog" aria-modal="true" aria-label="로그인">
       <div class="layer__inner">

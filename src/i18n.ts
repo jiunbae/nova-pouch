@@ -177,6 +177,15 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'auth.google':          'Google 계정으로 로그인',
     'auth.github':          'GitHub로 로그인',
 
+    // Profile
+    'profile.title':        '프로필',
+    'profile.totalRecords': '기록 수',
+    'profile.avgRating':    '평균 별점',
+    'profile.favToken':     '최다 토큰',
+    'profile.myRecords':    '기록 보관소',
+    'profile.provider.google': 'Google 계정',
+    'profile.provider.github': 'GitHub 계정',
+
     // Lang toggle
     'lang.toggle':          'EN',
   },
@@ -343,6 +352,15 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'auth.saveLogin':       'Log in and save record',
     'auth.google':          'Sign in with Google',
     'auth.github':          'Sign in with GitHub',
+
+    // Profile
+    'profile.title':        'Profile',
+    'profile.totalRecords': 'Records',
+    'profile.avgRating':    'Avg Rating',
+    'profile.favToken':     'Top Token',
+    'profile.myRecords':    'My Records',
+    'profile.provider.google': 'Google Account',
+    'profile.provider.github': 'GitHub Account',
 
     // Lang toggle
     'lang.toggle':          '한국어',
