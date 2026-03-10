@@ -248,10 +248,31 @@ export async function downloadShareCard(state: Partial<GameStateSnapshot> & { da
 }
 
 export function shareToTwitter(state: Partial<GameStateSnapshot> & { dailyDate?: string } = {}): void {
-  const full = buildCompactShare(state);
-  const maxLen = 270;
-  const text = full.length > maxLen ? full.slice(0, maxLen - 1) + '\u2026' : full;
+  const tokens = state.drawnTokens || { red: null, blue: null, green: null };
+  const parts: string[] = [];
+  if (tokens.red) parts.push(`${tokens.red.emoji} ${tokens.red.label}`);
+  if (tokens.blue) parts.push(`${tokens.blue.emoji} ${tokens.blue.label}`);
+  if (tokens.green) parts.push(`${tokens.green.emoji} ${tokens.green.label}`);
+  const comboLine = parts.join(' · ');
+
+  const story = (state.userStory || '').trim();
+  const truncStory = story.length > 50 ? story.slice(0, 49) + '\u2026' : story;
+
+  const ogLink = buildOgShareLink(state);
+
+  const lines = [comboLine];
+  if (truncStory) lines.push(truncStory);
+  lines.push(ogLink);
+
+  const text = lines.join('\n');
   window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+}
+
+export function buildOgShareLink(state: Partial<GameStateSnapshot>): string {
+  if (state.recordId) {
+    return `https://api.jiun.dev/nova-pouch/records/${state.recordId}/og`;
+  }
+  return buildShareLink(state);
 }
 
 export function buildShareLink(state: Partial<GameStateSnapshot>): string {
@@ -279,7 +300,7 @@ export function buildCompactShare(state: Partial<GameStateSnapshot> & { dailyDat
   const blueLine = tokens.blue ? `🔵 ${tokens.blue.emoji} ${tokens.blue.label}` : '';
   const greenLine = tokens.green ? `🟢 ${tokens.green.emoji} ${tokens.green.label}` : '';
   const story = (state.userStory || '').trim();
-  const link = buildShareLink(state);
+  const link = buildOgShareLink(state);
 
   const lines = [
     `✦ Nova Pouch #${dayNum} (${date})`,
@@ -305,7 +326,7 @@ export async function nativeShare(state: Partial<GameStateSnapshot> & { dailyDat
     return ok ? 'clipboard' : 'failed';
   }
 
-  const shareData: ShareData = { title: 'Nova Pouch', text: buildCompactShare(state) };
+  const shareData: ShareData = { title: 'Nova Pouch', text: buildCompactShare(state), url: buildOgShareLink(state) };
 
   const canShareFiles = navigator.canShare &&
     navigator.canShare({ files: [new File([], 't.png', { type: 'image/png' })] });
