@@ -136,7 +136,8 @@ export async function refreshToken(): Promise<string | null> {
 }
 
 export function startOAuthFlow(provider: string): void {
-  window.location.href = `${AUTH_API_BASE}/${provider}`;
+  const redirectUri = encodeURIComponent(window.location.origin);
+  window.location.href = `${AUTH_API_BASE}/${provider}?redirect_uri=${redirectUri}`;
 }
 
 export async function logout(): Promise<void> {
