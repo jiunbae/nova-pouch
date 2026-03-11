@@ -1,8 +1,8 @@
-/* api.ts — API Client for jiun-api */
+/* api.ts — API Client */
 
 import { getAccessToken, refreshToken } from './auth';
 
-const API_BASE = 'https://api.jiun.dev/nova-pouch';
+const API_BASE = window.location.origin + '/api';
 
 export class ApiError extends Error {
   status: number;

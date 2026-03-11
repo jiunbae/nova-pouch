@@ -4,15 +4,26 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "bun run --watch server/index.ts",
     "build": "tsc --noEmit && vite build",
+    "build:server": "bun build ./server/index.ts --outdir ./server-dist --target bun",
+    "start": "bun run server-dist/index.js",
     "preview": "vite preview",
     "test": "npm run build && node test-all.mjs",
     "typecheck": "tsc --noEmit",
     "generate:theme-assets": "node scripts/generate-themed-assets.mjs"
   },
+  "dependencies": {
+    "hono": "^4.7.0",
+    "mongodb": "^6.12.0",
+    "jose": "^6.0.0",
+    "satori": "^0.12.0",
+    "@resvg/resvg-js": "^2.6.0"
+  },
   "devDependencies": {
     "typescript": "^5.7.0",
     "vite": "^6.0.0",
-    "playwright": "^1.49.0"
+    "playwright": "^1.49.0",
+    "@types/bun": "^1.2.0"
   }
 }

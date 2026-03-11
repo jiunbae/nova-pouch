@@ -1,18 +1,15 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
+env:
+  REGISTRY: registry.jiun.dev
+  IMAGE_NAME: nova-pouch
+  IAC_REPO: jiunbae/IaC
+  APP_PATH: kubernetes/overlays/prod/nova-pouch
 
 jobs:
   build:
@@ -20,36 +17,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+      - name: Log in to Docker Registry
+        run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY }} -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
 
-      - run: npm ci
-      - run: npm run build
-
-      - name: Inject Google Analytics
-        if: ${{ vars.GTAG_ID != '' }}
-        run: sed -i "s/__GTAG_ID__/${{ vars.GTAG_ID }}/g" dist/index.html
-
-      - name: Inject AdSense
-        if: ${{ vars.ADSENSE_CLIENT != '' }}
+      - name: Build and push
         run: |
-          sed -i "s/__ADSENSE_CLIENT__/${{ vars.ADSENSE_CLIENT }}/g" dist/index.html
-          sed -i "s/__ADSENSE_SLOT_COMPLETE__/${{ vars.ADSENSE_SLOT_COMPLETE }}/g" dist/index.html
-          sed -i "s/__ADSENSE_SLOT_IDLE__/${{ vars.ADSENSE_SLOT_IDLE }}/g" dist/index.html
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
+  update-manifests:
+    needs: [build]
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Clone IaC repo
+        run: |
+          git clone https://x-access-token:${{ secrets.IAC_GITHUB_TOKEN }}@github.com/${{ env.IAC_REPO }}.git iac
+
+      - name: Update image tag
+        run: |
+          cd iac/${{ env.APP_PATH }}
+          sed -i "s/newTag: .*/newTag: ${{ github.sha }}/" kustomization.yaml
+          cat kustomization.yaml
+
+      - name: Commit and push
+        run: |
+          cd iac
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add ${{ env.APP_PATH }}/kustomization.yaml
+          git diff --staged --quiet || git commit -m "chore(nova-pouch): update image tag to ${{ github.sha }}"
+          git push

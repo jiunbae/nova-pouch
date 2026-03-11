@@ -269,18 +269,19 @@ export function shareToTwitter(state: Partial<GameStateSnapshot> & { dailyDate?:
 }
 
 export function buildOgShareLink(state: Partial<GameStateSnapshot>): string {
+  const base = window.location.origin;
   if (state.shortId) {
-    return `https://api.jiun.dev/nova-pouch/w/${state.shortId}`;
+    return `${base}/api/w/${state.shortId}`;
   }
   if (state.recordId) {
-    return `https://api.jiun.dev/nova-pouch/records/${state.recordId}/og`;
+    return `${base}/api/records/${state.recordId}/og`;
   }
   return buildShareLink(state);
 }
 
 export function buildShareLink(state: Partial<GameStateSnapshot>): string {
   if (state.shortId) {
-    return `https://api.jiun.dev/nova-pouch/w/${state.shortId}`;
+    return `${window.location.origin}/api/w/${state.shortId}`;
   }
 
   const url = new URL(window.location.origin + window.location.pathname);
