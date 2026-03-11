@@ -284,13 +284,11 @@ export function buildShareLink(state: Partial<GameStateSnapshot>): string {
     return `${window.location.origin}/api/w/${state.shortId}`;
   }
 
-  const url = new URL(window.location.origin + window.location.pathname);
-
   if (state.recordId) {
-    url.searchParams.set('r', state.recordId);
-    return url.toString();
+    return `${window.location.origin}/records/${state.recordId}`;
   }
 
+  const url = new URL(window.location.origin + '/');
   const tokens = state.drawnTokens;
   if (tokens?.red) url.searchParams.set('red', tokens.red.id);
   if (tokens?.blue) url.searchParams.set('blue', tokens.blue.id);

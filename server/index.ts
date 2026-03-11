@@ -6,7 +6,7 @@ import { connectMongo, closeMongo } from './db/mongo';
 import { corsMiddleware } from './middleware/cors';
 import { healthRoutes } from './routes/health';
 import { recordRoutes } from './routes/records';
-import { ogRoutes, preWarmFont } from './routes/og';
+import { ogRoutes, preWarmFont, buildRecordOgHtml } from './routes/og';
 
 const app = new Hono();
 
@@ -22,6 +22,18 @@ app.route('/', healthRoutes);
 // API routes
 app.route('/api', recordRoutes);
 app.route('/api', ogRoutes);
+
+// Clean URL: /records/:id — serve OG meta for crawlers, SPA for browsers
+const BOT_UA_RE = /bot|crawl|spider|slurp|facebookexternalhit|Twitterbot|LinkedInBot|Discordbot|TelegramBot|WhatsApp|Googlebot/i;
+
+app.get('/records/:id', async (c) => {
+  const ua = c.req.header('user-agent') || '';
+  if (BOT_UA_RE.test(ua)) {
+    return buildRecordOgHtml(c, c.req.param('id'));
+  }
+  // Serve SPA for regular browsers
+  return serveStatic({ root: './dist', path: 'index.html' })(c, async () => {});
+});
 
 // Static files (Vite build output)
 app.use('/*', serveStatic({ root: './dist' }));

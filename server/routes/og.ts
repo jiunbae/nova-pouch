@@ -56,7 +56,7 @@ ogRoutes.get('/w/:shortId', async (c) => {
 
     if (!record) return c.redirect(config.siteUrl);
 
-    const redirectUrl = `${config.siteUrl}/?r=${record.id}`;
+    const redirectUrl = `${config.siteUrl}/records/${record.id}`;
     const { tokens, story } = record;
     const title = `Nova Pouch — ${tokens.green.label} ${tokens.blue.label} ${tokens.red.label}`;
     const description = truncate(story, 100);
@@ -73,7 +73,7 @@ ogRoutes.get('/records/:id/og', async (c) => {
   try {
     const id = c.req.param('id');
     const record = await getRecord(id);
-    const redirectUrl = `${config.siteUrl}/?r=${id}`;
+    const redirectUrl = `${config.siteUrl}/records/${id}`;
 
     if (!record) return c.redirect(config.siteUrl);
 
@@ -236,4 +236,22 @@ ogRoutes.get('/records/:id/og-image.png', async (c) => {
   }
 });
 
-export { ogRoutes };
+/** Serve OG HTML for a record by ID — used by clean URL crawler detection */
+async function buildRecordOgHtml(c: import('hono').Context, id: string) {
+  try {
+    const record = await getRecord(id);
+    if (!record) return c.redirect(config.siteUrl);
+
+    const redirectUrl = `${config.siteUrl}/records/${id}`;
+    const { tokens, story } = record;
+    const title = `Nova Pouch — ${tokens.green.label} ${tokens.blue.label} ${tokens.red.label}`;
+    const description = truncate(story, 100);
+    const imageUrl = `${config.siteUrl}/api/records/${id}/og-image.png`;
+
+    return c.html(buildOgHtml({ title, description, imageUrl, redirectUrl }));
+  } catch (error) {
+    return handleError(c, error, 'Failed to generate OG page');
+  }
+}
+
+export { ogRoutes, buildRecordOgHtml };

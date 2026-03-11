@@ -19,6 +19,7 @@ import { startCountdown, stopCountdown } from './countdown';
 import { downloadShareCard, shareToTwitter, nativeShare, buildCompactShare } from './share';
 import { submitRecord } from './feed';
 import { initAuth, getAuthState, subscribeAuth, startOAuthFlow, logout } from './auth';
+import { route, resolve, navigate } from './router';
 import type { AuthState } from './auth';
 import type { GameStateSnapshot, HistoryData, HistorySession, FeedState, FeedRecord, DailyCompletion, Token, PouchColor } from './types';
 
@@ -44,6 +45,7 @@ async function bootstrap(): Promise<void> {
     }
     dispatchAction('RESTART');
     checkDailyState();
+    navigate('/');
   });
 
   // View record detail from history
@@ -69,7 +71,7 @@ async function bootstrap(): Promise<void> {
         dispatchAction('CONFIRM_TOKEN');
         if (session.userStory) dispatchAction('UPDATE_STORY', session.userStory);
         dispatchAction('COMPLETE');
-        window.history.pushState(null, '');
+        navigate(`/records/${session.id}`);
       }
       syncStarsFromState(state);
       syncWritingValidation(state?.userStory || '');
@@ -104,8 +106,9 @@ async function bootstrap(): Promise<void> {
   renderAuthUI(getAuthState());
   bindAuthButtons();
 
-  // --- Check for shared result link ---
-  handleSharedLink();
+  // --- Clean URL routing ---
+  initRoutes();
+  handleInitialRoute();
 }
 
 async function handleSharedLink(): Promise<void> {
@@ -160,6 +163,83 @@ async function handleSharedLink(): Promise<void> {
   }
 }
 
+function initRoutes(): void {
+  route('/', () => {
+    // Home — handled by default state, check for query params
+    handleSharedLink();
+  });
+
+  route('/archive', () => {
+    dispatchAction('VIEW_HISTORY');
+    updateHistoryPreview(loadHistory());
+  });
+
+  route('/feed', async () => {
+    const feedLayer = document.getElementById('layer-feed');
+    if (!feedLayer) return;
+    _feedSelectedDate = todayDateString();
+    buildDatePicker();
+    openOverlay(feedLayer);
+    const { loadFeed } = await import('./feed');
+    const state = await loadFeed(_feedSelectedDate);
+    renderFeedCards(state);
+  });
+
+  route('/records/:id', async (params) => {
+    try {
+      const { fetchRecord } = await import('./feed');
+      const record = await fetchRecord(params.id);
+      if (record && record.tokens) {
+        _viewOnly = true;
+        dispatchAction('SET_GAME_MODE', 'free');
+        if (record.tokens.red) dispatchAction('DRAW_TOKEN', { pouch: 'red', token: record.tokens.red });
+        dispatchAction('CONFIRM_TOKEN');
+        if (record.tokens.blue) dispatchAction('DRAW_TOKEN', { pouch: 'blue', token: record.tokens.blue });
+        dispatchAction('CONFIRM_TOKEN');
+        if (record.tokens.green) dispatchAction('DRAW_TOKEN', { pouch: 'green', token: record.tokens.green });
+        dispatchAction('CONFIRM_TOKEN');
+        if (record.story) dispatchAction('UPDATE_STORY', record.story);
+        dispatchAction('SUBMIT_RECORD', { recordId: params.id });
+        dispatchAction('COMPLETE');
+      }
+    } catch (e) {
+      console.error('Failed to fetch record:', e);
+      navigate('/', true);
+    }
+  });
+
+  route('/profile', () => {
+    const authState = getAuthState();
+    if (authState.isLoggedIn) {
+      const overlay = document.getElementById('layer-profile');
+      if (overlay) {
+        renderProfileOverlay();
+        openOverlay(overlay);
+      }
+    } else {
+      const overlay = document.getElementById('layer-login');
+      if (overlay) openOverlay(overlay);
+    }
+  });
+}
+
+function handleInitialRoute(): void {
+  const pathname = window.location.pathname;
+  const hasQueryParams = window.location.search.length > 1;
+
+  // If on root with query params (legacy share links), handle them
+  if (pathname === '/' && hasQueryParams) {
+    handleSharedLink();
+    return;
+  }
+
+  // Try to match a clean URL route
+  if (!resolve(pathname)) {
+    // Unknown path — treat as home
+    handleSharedLink();
+  }
+}
+
 const FORWARD_ACTIONS: Set<string> = new Set([
   ACTIONS.START_GAME,
   ACTIONS.CONFIRM_TOKEN,
@@ -173,8 +253,50 @@ function initHistoryNavigation(stateInstance: typeof gameState): void {
   let isHandlingPopState = false;
 
   window.addEventListener('popstate', () => {
+    const pathname = window.location.pathname;
+
+    // Close any open overlays first
+    const closeIfActive = (id: string) => {
+      const el = document.getElementById(id);
+      if (el?.classList.contains('layer--active')) {
+        closeOverlay(el);
+        return true;
+      }
+      return false;
+    };
+
+    // Try to match overlay routes
+    if (pathname === '/archive') {
+      stateInstance.dispatch(ACTIONS.VIEW_HISTORY);
+      return;
+    }
+    if (pathname === '/feed') {
+      const feedLayer = document.getElementById('layer-feed');
+      if (feedLayer && !feedLayer.classList.contains('layer--active')) {
+        openOverlay(feedLayer);
+      }
+      return;
+    }
+    if (pathname === '/profile') {
+      const overlay = document.getElementById('layer-profile');
+      if (overlay && !overlay.classList.contains('layer--active')) {
+        renderProfileOverlay();
+        openOverlay(overlay);
+      }
+      return;
+    }
+
+    // Going back to home — close overlays
+    if (pathname === '/') {
+      closeIfActive('layer-feed');
+      closeIfActive('layer-profile');
+      const historyLayer = document.getElementById('layer-history');
+      if (historyLayer?.classList.contains('layer--active')) {
+        stateInstance.dispatch(ACTIONS.CLOSE_HISTORY);
+      }
+    }
+
     if (_viewOnly) {
-      // Viewing a record — back goes to home, not previous game step
       _viewOnly = false;
       stateInstance.dispatch(ACTIONS.RESTART);
       return;
@@ -271,17 +393,20 @@ function bindAllButtons(): void {
     _viewOnly = false;
     dispatchAction('RESTART');
     checkDailyState();
+    navigate('/');
   });
 
   // History — open overlay
   bindButtons(['[data-action="view-history"]', '#btn-history-idle', '#step-btn-history'], () => {
     dispatchAction('VIEW_HISTORY');
     updateHistoryPreview(loadHistory());
+    navigate('/archive');
   });
 
   // History — close overlay
   bindButtons(['#btn-close-history'], () => {
     dispatchAction('CLOSE_HISTORY');
+    navigate('/');
   });
 
   // Delete all history
@@ -537,6 +662,7 @@ function bindFeedButtons(): void {
     _feedSelectedDate = todayDateString();
     buildDatePicker();
     openOverlay(feedLayer);
+    navigate('/feed');
 
     const { loadFeed } = await import('./feed');
     const state = await loadFeed(_feedSelectedDate);
@@ -546,6 +672,7 @@ function bindFeedButtons(): void {
   bindButtons(['#btn-close-feed'], () => {
     const feedLayer = document.getElementById('layer-feed');
     if (feedLayer) closeOverlay(feedLayer);
+    navigate('/');
   });
 
   bindButtons(['#btn-feed-more'], async () => {
@@ -590,6 +717,7 @@ function buildFeedCard(record: FeedRecord, feedState: FeedState): HTMLElement {
   card.addEventListener('click', () => {
     const feedLayer = document.getElementById('layer-feed');
     if (feedLayer) closeOverlay(feedLayer);
+    navigate(`/records/${record.id}`);
     dispatchAction('VIEW_RECORD_DETAIL', {
       session: { tokens: record.tokens, userStory: record.story, id: record.id },
     });
@@ -784,6 +912,7 @@ function autoSubmitRecord(state: GameStateSnapshot): void {
     if ((result as Record<string, unknown>)?.id) {
       const res = result as Record<string, string>;
       dispatchAction('SUBMIT_RECORD', { recordId: res.id, shortId: res.shortId });
+      navigate(`/records/${res.id}`, true);
     }
   }).catch(() => {
     // Silent fail — record saved locally via history.js
@@ -909,6 +1038,7 @@ function bindAuthButtons(): void {
       if (overlay) {
         renderProfileOverlay();
         openOverlay(overlay);
+        navigate('/profile');
       }
     });
   }
@@ -919,6 +1049,7 @@ function bindAuthButtons(): void {
     closeProfileBtn.addEventListener('click', () => {
       const overlay = document.getElementById('layer-profile');
       if (overlay) closeOverlay(overlay);
+      navigate('/');
     });
   }
 
@@ -1212,6 +1343,7 @@ function initOverlayKeyHandlers(): void {
       const profileLayer = document.getElementById('layer-profile');
       if (profileLayer?.classList.contains('layer--active')) {
         closeOverlay(profileLayer);
+        navigate('/');
         return;
       }
       const loginLayer = document.getElementById('layer-login');
@@ -1222,11 +1354,13 @@ function initOverlayKeyHandlers(): void {
       const feedLayer = document.getElementById('layer-feed');
       if (feedLayer?.classList.contains('layer--active')) {
         closeOverlay(feedLayer);
+        navigate('/');
         return;
       }
       const historyLayer = document.getElementById('layer-history');
       if (historyLayer?.classList.contains('layer--active')) {
         dispatchAction('CLOSE_HISTORY');
+        navigate('/');
         if (_lastFocusedElement && typeof (_lastFocusedElement as HTMLElement).focus === 'function') {
           (_lastFocusedElement as HTMLElement).focus();
           _lastFocusedElement = null;
