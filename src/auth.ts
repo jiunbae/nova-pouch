@@ -1,8 +1,20 @@
 /* auth.ts — OAuth authentication module */
 
-const AUTH_API_BASE = 'https://api.jiun.dev/auth';
+let AUTH_API_BASE = 'https://api.jiun.dev/auth'; // default, overridden at init
 const TOKEN_KEY = 'nova-pouch-access-token';
 const AUTH_TIMEOUT_MS = 5000;
+
+async function loadAuthConfig(): Promise<void> {
+  try {
+    const res = await fetch('/api/config');
+    if (res.ok) {
+      const data = (await res.json()) as { authApiUrl?: string };
+      if (data.authApiUrl) AUTH_API_BASE = data.authApiUrl;
+    }
+  } catch {
+    // Fall back to default
+  }
+}
 
 function authFetch(url: string, init?: RequestInit): Promise<Response> {
   const controller = new AbortController();
@@ -54,6 +66,8 @@ export function getAccessToken(): string | null {
 }
 
 export async function initAuth(): Promise<void> {
+  await loadAuthConfig();
+
   // Handle GitHub Pages SPA redirect (?p=/auth/callback#access_token=...)
   const urlParams = new URLSearchParams(window.location.search);
   const redirectPath = urlParams.get('p');

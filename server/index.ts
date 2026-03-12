@@ -19,6 +19,11 @@ app.use('/api/*', corsMiddleware);
 // Health check
 app.route('/', healthRoutes);
 
+// Public config (non-sensitive, consumed by frontend)
+app.get('/api/config', (c) =>
+  c.json({ authApiUrl: config.authApiUrl, siteUrl: config.siteUrl }),
+);
+
 // API routes
 app.route('/api', recordRoutes);
 app.route('/api', ogRoutes);
