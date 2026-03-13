@@ -1,6 +1,7 @@
 /* auth.ts — OAuth authentication module */
 
 let AUTH_API_BASE = 'https://api.jiun.dev/auth'; // default, overridden at init
+let _enabledProviders: string[] = ['google', 'github', 'kakao', 'naver', 'twitter']; // default, overridden at init
 const TOKEN_KEY = 'nova-pouch-access-token';
 const AUTH_TIMEOUT_MS = 5000;
 
@@ -8,12 +9,17 @@ async function loadAuthConfig(): Promise<void> {
   try {
     const res = await fetch('/api/config');
     if (res.ok) {
-      const data = (await res.json()) as { authApiUrl?: string };
+      const data = (await res.json()) as { authApiUrl?: string; authProviders?: string[] };
       if (data.authApiUrl) AUTH_API_BASE = data.authApiUrl;
+      if (Array.isArray(data.authProviders)) _enabledProviders = data.authProviders;
     }
   } catch {
-    // Fall back to default
+    // Fall back to defaults
   }
+}
+
+export function getEnabledProviders(): string[] {
+  return _enabledProviders;
 }
 
 function authFetch(url: string, init?: RequestInit): Promise<Response> {
@@ -150,6 +156,7 @@ export async function refreshToken(): Promise<string | null> {
 }
 
 export function startOAuthFlow(provider: string): void {
+  if (!_enabledProviders.includes(provider)) return;
   const redirectUri = encodeURIComponent(window.location.origin);
   window.location.href = `${AUTH_API_BASE}/${provider}?redirect_uri=${redirectUri}`;
 }

@@ -21,7 +21,7 @@ app.route('/', healthRoutes);
 
 // Public config (non-sensitive, consumed by frontend)
 app.get('/api/config', (c) =>
-  c.json({ authApiUrl: config.authApiUrl, siteUrl: config.siteUrl }),
+  c.json({ authApiUrl: config.authApiUrl, siteUrl: config.siteUrl, authProviders: config.authProviders }),
 );
 
 // API routes

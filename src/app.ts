@@ -18,7 +18,7 @@ import {
 import { startCountdown, stopCountdown } from './countdown';
 import { downloadShareCard, shareToTwitter, nativeShare, buildCompactShare } from './share';
 import { submitRecord } from './feed';
-import { initAuth, getAuthState, subscribeAuth, startOAuthFlow, logout } from './auth';
+import { initAuth, getAuthState, subscribeAuth, startOAuthFlow, logout, getEnabledProviders } from './auth';
 import { route, resolve, navigate } from './router';
 import type { AuthState } from './auth';
 import type { GameStateSnapshot, HistoryData, HistorySession, FeedState, FeedRecord, DailyCompletion, Token, PouchColor } from './types';
@@ -34,6 +34,14 @@ async function bootstrap(): Promise<void> {
   initI18n();
   updateDOM();
   await initAuth();
+  // Hide auth provider buttons not enabled by server config
+  const enabledProviders = getEnabledProviders();
+  document.querySelectorAll<HTMLElement>('[data-auth-provider]').forEach(btn => {
+    const provider = btn.dataset.authProvider;
+    if (provider && !enabledProviders.includes(provider)) {
+      btn.hidden = true;
+    }
+  });
 
   initRenderer(gameState, loadHistory);
 
@@ -314,6 +322,12 @@ function initHistoryNavigation(stateInstance: typeof gameState): void {
   });
 }
 
+function openArchive(): void {
+  dispatchAction('VIEW_HISTORY');
+  updateHistoryPreview(loadHistory());
+  navigate('/archive');
+}
+
 function bindAllButtons(): void {
   // Start game
   bindButtons(['[data-action="start-game"]', '#btn-start'], (event) => {
@@ -398,9 +412,7 @@ function bindAllButtons(): void {
 
   // History — open overlay
   bindButtons(['[data-action="view-history"]', '#btn-history-idle', '#step-btn-history'], () => {
-    dispatchAction('VIEW_HISTORY');
-    updateHistoryPreview(loadHistory());
-    navigate('/archive');
+    openArchive();
   });
 
   // History — close overlay
@@ -1059,9 +1071,7 @@ function bindAuthButtons(): void {
     profileHistoryBtn.addEventListener('click', () => {
       const profileOverlay = document.getElementById('layer-profile');
       if (profileOverlay) closeOverlay(profileOverlay);
-      dispatchAction('VIEW_HISTORY');
-      updateHistoryPreview(loadHistory());
-      navigate('/archive');
+      openArchive();
     });
   }
 

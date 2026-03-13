@@ -98,15 +98,15 @@
   background: #FADA0A;
 }
 
-/* Naver — official green brand color */
+/* Naver — darkened brand green for WCAG AA contrast (≥ 4.5:1 with #fff) */
 .btn--auth-naver {
-  background: #03C75A;
+  background: #03853D;
   color: #fff;
-  border: 1px solid #03C75A;
+  border: 1px solid #03853D;
 }
 
 .btn--auth-naver:hover {
-  background: #02b351;
+  background: #027435;
 }
 
 /* X (Twitter) — dark theme matching brand */

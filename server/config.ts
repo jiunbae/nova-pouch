@@ -31,4 +31,5 @@ export const config = {
   })(),
   siteUrl: process.env.SITE_URL || 'https://nova-pouch.jiun.dev',
   authApiUrl: process.env.AUTH_API_URL || 'https://api.jiun.dev/auth',
+  authProviders: (process.env.AUTH_PROVIDERS || 'google,github,kakao,naver,twitter').split(',').map(s => s.trim()).filter(Boolean),
 };
