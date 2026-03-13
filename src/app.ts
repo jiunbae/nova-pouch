@@ -1059,7 +1059,9 @@ function bindAuthButtons(): void {
     profileHistoryBtn.addEventListener('click', () => {
       const profileOverlay = document.getElementById('layer-profile');
       if (profileOverlay) closeOverlay(profileOverlay);
-      dispatchAction('OPEN_HISTORY');
+      dispatchAction('VIEW_HISTORY');
+      updateHistoryPreview(loadHistory());
+      navigate('/archive');
     });
   }
 
