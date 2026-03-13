@@ -176,6 +176,9 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'auth.saveLogin':       '로그인하고 기록 저장하기',
     'auth.google':          'Google 계정으로 로그인',
     'auth.github':          'GitHub로 로그인',
+    'auth.kakao':           '카카오로 로그인',
+    'auth.naver':           '네이버로 로그인',
+    'auth.twitter':         'X(Twitter)로 로그인',
 
     // Profile
     'profile.title':        '프로필',
@@ -185,6 +188,9 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'profile.myRecords':    '기록 보관소',
     'profile.provider.google': 'Google 계정',
     'profile.provider.github': 'GitHub 계정',
+    'profile.provider.kakao': '카카오 계정',
+    'profile.provider.naver': '네이버 계정',
+    'profile.provider.twitter': 'X(Twitter) 계정',
 
     // Lang toggle
     'lang.toggle':          'EN',
@@ -352,6 +358,9 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'auth.saveLogin':       'Log in and save record',
     'auth.google':          'Sign in with Google',
     'auth.github':          'Sign in with GitHub',
+    'auth.kakao':           'Sign in with Kakao',
+    'auth.naver':           'Sign in with Naver',
+    'auth.twitter':         'Sign in with X (Twitter)',
 
     // Profile
     'profile.title':        'Profile',
@@ -361,6 +370,9 @@ const STRINGS: Record<Locale, Record<string, string>> = {
     'profile.myRecords':    'My Records',
     'profile.provider.google': 'Google Account',
     'profile.provider.github': 'GitHub Account',
+    'profile.provider.kakao': 'Kakao Account',
+    'profile.provider.naver': 'Naver Account',
+    'profile.provider.twitter': 'X (Twitter) Account',
 
     // Lang toggle
     'lang.toggle':          '한국어',

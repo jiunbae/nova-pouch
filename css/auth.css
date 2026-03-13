@@ -87,6 +87,38 @@
   background: #2f363d;
 }
 
+/* Kakao — official yellow brand color */
+.btn--auth-kakao {
+  background: #FEE500;
+  color: #191919;
+  border: 1px solid #FEE500;
+}
+
+.btn--auth-kakao:hover {
+  background: #FADA0A;
+}
+
+/* Naver — official green brand color */
+.btn--auth-naver {
+  background: #03C75A;
+  color: #fff;
+  border: 1px solid #03C75A;
+}
+
+.btn--auth-naver:hover {
+  background: #02b351;
+}
+
+/* X (Twitter) — dark theme matching brand */
+.btn--auth-twitter {
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+}
+
+.btn--auth-twitter:hover {
+  background: #1a1a1a;
+}
 
 /* Login prompt card in complete section */
 .auth-login-prompt {
