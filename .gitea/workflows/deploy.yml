@@ -10,8 +10,8 @@ env:
   REGISTRY: registry.jiun.dev
   IMAGE_NAME: nova-pouch
   IAC_REPO: jiunbae/IaC
-  PROD_PATH: kubernetes/overlays/prod/nova-pouch
-  DEV_PATH: kubernetes/overlays/dev/nova-pouch
+  OVERLAY_PROD: kubernetes/overlays/prod/nova-pouch
+  OVERLAY_DEV: kubernetes/overlays/dev/nova-pouch
 
 jobs:
   build:
@@ -53,14 +53,14 @@ jobs:
       - name: Update image tags in IaC repo
         run: |
           cd iac
-          sed -i "s/newTag: .*/newTag: ${{ gitea.sha }}/" ${{ env.DEV_PATH }}/kustomization.yaml
-          sed -i "s/newTag: .*/newTag: ${{ gitea.sha }}/" ${{ env.PROD_PATH }}/kustomization.yaml
+          sed -i "s/newTag: .*/newTag: ${{ gitea.sha }}/" ${{ env.OVERLAY_DEV }}/kustomization.yaml
+          sed -i "s/newTag: .*/newTag: ${{ gitea.sha }}/" ${{ env.OVERLAY_PROD }}/kustomization.yaml
 
       - name: Commit and push to IaC repo
         run: |
           cd iac
           git config user.name "Gitea Actions"
           git config user.email "actions@gitea.jiun.dev"
-          git add ${{ env.DEV_PATH }}/kustomization.yaml ${{ env.PROD_PATH }}/kustomization.yaml
+          git add ${{ env.OVERLAY_DEV }}/kustomization.yaml ${{ env.OVERLAY_PROD }}/kustomization.yaml
           git diff --staged --quiet || git commit -m "chore(nova-pouch): update image tag to ${{ gitea.sha }}"
           git push
