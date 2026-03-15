@@ -1,4 +1,4 @@
-FROM oven/bun:1-alpine AS base
+FROM registry.jiun.dev/oven/bun:1-alpine AS base
 WORKDIR /app
 
 # Install dependencies
@@ -16,7 +16,7 @@ RUN bun run build
 COPY server/ ./server/
 RUN bun run build:server
 
-FROM oven/bun:1-alpine AS runner
+FROM registry.jiun.dev/oven/bun:1-alpine AS runner
 WORKDIR /app
 COPY --from=base /app/server-dist ./server-dist
 COPY --from=base /app/dist ./dist
