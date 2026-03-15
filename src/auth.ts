@@ -83,7 +83,32 @@ export async function initAuth(): Promise<void> {
     history.replaceState(null, '', '/' + (cleanSearch ? '?' + cleanSearch : '') + window.location.hash);
   }
 
-  // 1. Extract token from URL hash (OAuth callback)
+  // 1. Exchange authorization code for access token (new flow)
+  const searchParams = new URLSearchParams(window.location.search);
+  const code = searchParams.get('code');
+  if (code) {
+    try {
+      const res = await authFetch(`${AUTH_API_BASE}/exchange`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { accessToken: string };
+        if (data.accessToken) {
+          localStorage.setItem(TOKEN_KEY, data.accessToken);
+        }
+      }
+    } catch {
+      // Exchange failed — fall through to stored token check
+    }
+    // Clean up URL (remove code param)
+    searchParams.delete('code');
+    const cleanSearch = searchParams.toString();
+    history.replaceState(null, '', window.location.pathname + (cleanSearch ? '?' + cleanSearch : ''));
+  }
+
+  // Fallback: extract token from URL hash (backward compatibility during transition)
   const hash = window.location.hash;
   if (hash.includes('access_token=')) {
     const params = new URLSearchParams(hash.slice(1));
