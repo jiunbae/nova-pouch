@@ -20,10 +20,6 @@ FROM registry.jiun.dev/oven/bun:1-alpine AS runner
 WORKDIR /app
 COPY --from=base /app/server-dist ./server-dist
 COPY --from=base /app/dist ./dist
-COPY --from=base /app/package.json ./
-# Only install production dependencies (native modules like @resvg/resvg-js)
-COPY --from=base /app/bun.lock* ./
-RUN bun install --frozen-lockfile --production
 USER bun
 EXPOSE 3000
 CMD ["bun", "run", "server-dist/index.js"]

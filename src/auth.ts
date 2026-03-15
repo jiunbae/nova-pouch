@@ -1,22 +1,9 @@
 /* auth.ts — OAuth authentication module */
 
-let AUTH_API_BASE = 'https://api.jiun.dev/auth'; // default, overridden at init
-let _enabledProviders: string[] = ['google', 'github', 'kakao', 'naver', 'twitter']; // default, overridden at init
+const AUTH_API_BASE = 'https://api.jiun.dev/auth';
+const _enabledProviders: string[] = ['google', 'github', 'kakao', 'naver', 'twitter'];
 const TOKEN_KEY = 'nova-pouch-access-token';
 const AUTH_TIMEOUT_MS = 5000;
-
-async function loadAuthConfig(): Promise<void> {
-  try {
-    const res = await fetch('/api/config');
-    if (res.ok) {
-      const data = (await res.json()) as { authApiUrl?: string; authProviders?: string[] };
-      if (data.authApiUrl) AUTH_API_BASE = data.authApiUrl;
-      if (Array.isArray(data.authProviders)) _enabledProviders = data.authProviders;
-    }
-  } catch {
-    // Fall back to defaults
-  }
-}
 
 export function getEnabledProviders(): string[] {
   return _enabledProviders;
@@ -72,8 +59,6 @@ export function getAccessToken(): string | null {
 }
 
 export async function initAuth(): Promise<void> {
-  await loadAuthConfig();
-
   // Handle GitHub Pages SPA redirect (?p=/auth/callback#access_token=...)
   const urlParams = new URLSearchParams(window.location.search);
   const redirectPath = urlParams.get('p');

@@ -5,12 +5,6 @@ export default defineConfig({
   publicDir: 'assets',
   server: {
     port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-      },
-    },
   },
   build: {
     outDir: 'dist',

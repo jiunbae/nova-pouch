@@ -2,7 +2,18 @@
 
 import { getAccessToken, refreshToken } from './auth';
 
-const API_BASE = window.location.origin + '/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://api.jiun.dev/nova-pouch';
+
+const ANON_FP_KEY = 'anon_fingerprint';
+
+function getAnonFingerprint(): string {
+  let fp = localStorage.getItem(ANON_FP_KEY);
+  if (!fp) {
+    fp = crypto.randomUUID();
+    localStorage.setItem(ANON_FP_KEY, fp);
+  }
+  return fp;
+}
 
 export class ApiError extends Error {
   status: number;
@@ -16,7 +27,10 @@ export class ApiError extends Error {
 
 function authHeaders(): Record<string, string> {
   const token = getAccessToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  const headers: Record<string, string> = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (!token) headers['X-Anon-Fingerprint'] = getAnonFingerprint();
+  return headers;
 }
 
 export async function apiGet(
