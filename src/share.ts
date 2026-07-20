@@ -320,7 +320,7 @@ export function buildCompactShare(state: Partial<GameStateSnapshot> & { dailyDat
   }
 
   lines.push('', 'Link: ' + link);
-  lines.push('', 'nova-pouch.app');
+  lines.push('', 'nova-pouch.jiun.dev');
 
   return lines.join('\n');
 }
