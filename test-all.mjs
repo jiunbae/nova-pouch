@@ -125,15 +125,29 @@ async function testHash(page) {
 async function testE2E(page) {
   console.log('── E2E Flow Test ──');
 
+  // Off-origin requests are aborted (see newHermeticPage), which the page still
+  // reports as console errors. Attribute by source URL rather than substring
+  // matching: those messages carry no URL in their text at all.
   const jsErrors = [];
-  page.on('pageerror', err => jsErrors.push(err.message));
+  const ignoredErrors = [];
+  const ORIGIN = `http://localhost:${PORT}`;
+
+  const isFirstParty = url => typeof url === 'string' && url.startsWith(ORIGIN);
+  const hostOf = url => { try { return new URL(url).host; } catch { return url; } };
+
+  page.on('pageerror', err => {
+    // A genuine app error carries a stack frame pointing at our own bundle;
+    // minified third-party failures (e.g. "Y") arrive with an empty stack.
+    const frames = (err.stack || '').match(/https?:\/\/[^\s)]+/g) || [];
+    if (frames.some(isFirstParty)) jsErrors.push(err.message);
+    else ignoredErrors.push(`[third-party] ${err.message}`);
+  });
+
   page.on('console', msg => {
-    if (msg.type() === 'error') {
-      const text = msg.text();
-      if (!text.includes('ERR_NAME_NOT_RESOLVED') && !text.includes('fetch')) {
-        jsErrors.push(text);
-      }
-    }
+    if (msg.type() !== 'error') return;
+    const url = msg.location()?.url ?? '';
+    if (isFirstParty(url) || url === '') jsErrors.push(msg.text());
+    else ignoredErrors.push(`[${hostOf(url)}] ${msg.text()}`);
   });
 
   // Load page
@@ -222,11 +236,16 @@ async function testE2E(page) {
     }
   }
 
-  // Check for unexpected JS errors
+  // Check for unexpected JS errors. Backend calls are expected to fail against
+  // the static dist/ server, so only same-origin script errors count.
   const realErrors = jsErrors.filter(e =>
     !e.includes('ERR_NAME_NOT_RESOLVED') &&
     !e.includes('api.jiun.dev')
   );
+  if (ignoredErrors.length > 0) {
+    console.log(`  (ignored ${ignoredErrors.length} third-party error(s))`);
+    for (const e of ignoredErrors) console.log(`    - ${e.slice(0, 160)}`);
+  }
   assert('No unexpected JS errors', realErrors.length === 0);
   if (realErrors.length) {
     realErrors.forEach(e => console.log(`    Error: ${e}`));
@@ -236,6 +255,23 @@ async function testE2E(page) {
 }
 
 // ── Main ─────────────────────────────────────────────────────
+
+/**
+ * Tests must not depend on the public internet. The built page pulls in AdSense,
+ * GTM and analytics, whose failures vary run to run (400s, CSP violations,
+ * minified errors) and would make CI intermittently red for reasons unrelated
+ * to this codebase. Aborting every off-origin request makes runs deterministic
+ * and lets the suite pass on an offline runner.
+ */
+async function newHermeticPage(browser) {
+  const page = await browser.newPage();
+  await page.route('**/*', route => {
+    const url = route.request().url();
+    if (url.startsWith(`http://localhost:${PORT}`)) return route.continue();
+    return route.abort();
+  });
+  return page;
+}
 
 async function main() {
   console.log('╔══════════════════════════════════════╗');
@@ -248,13 +284,13 @@ async function main() {
   let browser;
   try {
     browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
+    const page = await newHermeticPage(browser);
 
     await page.goto(`http://localhost:${PORT}`);
     await testHash(page);
 
     // Reload for clean E2E test
-    const e2ePage = await browser.newPage();
+    const e2ePage = await newHermeticPage(browser);
     await testE2E(e2ePage);
   } finally {
     if (browser) await browser.close();
