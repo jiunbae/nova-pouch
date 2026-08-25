@@ -3,3 +3,4 @@ dist/
 server-dist/
 *.tsbuildinfo
 .context/
+test-results/
