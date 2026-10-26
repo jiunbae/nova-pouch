@@ -42,13 +42,15 @@ jobs:
       - name: Build server
         run: bun run build:server
 
-      # The LAN's upstream intermittently corrupts large downloads; a stuck
-      # browser download held the single runner for 40+ minutes (2026-10-26).
+      # Runs the installer under Node: under Bun 1.4.4 (bunx) it finished the
+      # 167 MiB browser download and then hung while unpacking, every attempt
+      # (runs 3026, 3052 on 2026-10-26). Bounded and retried so a stall can
+      # never hold the single runner again.
       - name: Install Playwright browser
         timeout-minutes: 15
         run: |
           for attempt in 1 2 3; do
-            timeout 300 bunx playwright install --with-deps chromium && exit 0
+            timeout 300 npx --no-install playwright install --with-deps chromium && exit 0
             echo "playwright install attempt $attempt failed; retrying"
           done
           exit 1
