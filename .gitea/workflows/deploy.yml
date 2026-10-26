@@ -42,8 +42,16 @@ jobs:
       - name: Build server
         run: bun run build:server
 
+      # The LAN's upstream intermittently corrupts large downloads; a stuck
+      # browser download held the single runner for 40+ minutes (2026-10-26).
       - name: Install Playwright browser
-        run: bunx playwright install --with-deps chromium
+        timeout-minutes: 15
+        run: |
+          for attempt in 1 2 3; do
+            timeout 300 bunx playwright install --with-deps chromium && exit 0
+            echo "playwright install attempt $attempt failed; retrying"
+          done
+          exit 1
 
       - name: Run E2E tests
         run: bun run test:e2e
