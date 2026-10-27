@@ -16,14 +16,20 @@ env:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # Browser and its system libraries come baked into the image (chromium-1208
+    # matches playwright 1.58.2 in bun.lock). Installing them per run meant a
+    # 167 MiB download plus apt, and the LAN path corrupts large concurrent
+    # downloads (2026-10-26/27: Hash Sum mismatch, truncated browser zip).
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble@sha256:6446946a1d9fd62d9ae501312a2d76a43ee688542b21622056a372959b65d63d
     steps:
       - name: Checkout app repo
         uses: actions/checkout@v4
 
+      # setup-bun needs unzip, which the Playwright image lacks; npm verifies
+      # the package integrity hash, so a corrupted download fails and retries.
       - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: "1.4.4"
+        run: npm install -g bun@1.4.4 && bun --version
 
       # Fails if bun.lock is out of sync with package.json, which is what broke
       # the pipeline in run #5 -- previously only surfaced inside the Docker build.
@@ -41,19 +47,6 @@ jobs:
 
       - name: Build server
         run: bun run build:server
-
-      # Runs the installer under Node: under Bun 1.4.4 (bunx) it finished the
-      # 167 MiB browser download and then hung while unpacking, every attempt
-      # (runs 3026, 3052 on 2026-10-26). Bounded and retried so a stall can
-      # never hold the single runner again.
-      - name: Install Playwright browser
-        timeout-minutes: 15
-        run: |
-          for attempt in 1 2 3; do
-            timeout 300 npx --no-install playwright install --with-deps chromium && exit 0
-            echo "playwright install attempt $attempt failed; retrying"
-          done
-          exit 1
 
       - name: Run E2E tests
         run: bun run test:e2e
